@@ -1,0 +1,196 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>MinUSc - Gestion des dossiers</title>
+		<style type='text/css'>
+			body, html {
+		  		padding: 0px;
+				margin: 0px;
+				height: 100%;
+				background: #eee;
+				font-family: Arial, Helvetica, sans-serif;
+		  	}
+			#main {
+				width : 750px;
+				margin: 5px auto 5px auto;
+				padding: 2px;
+				background: #fff;
+				min-height : 95%;
+				border: solid 1px #ccc;
+			}
+			#galerie {
+				height: 110px;
+				background: #666;
+				margin-right: 110px;
+				padding: 2px;
+				
+			}
+			#trash {
+				width: 100px;
+				height: 100px;
+				background: #ffffff;
+				float : right;
+				margin: 5px;
+			}
+			#folders {
+				background: #eff9ff;
+				margin: 0; padding: 0px;
+				width: 290px;
+				overflow: auto;
+				float: left;
+				border : solid 1px #c2dff3;
+				margin-top: 2px;
+			}
+			#content {
+				background: #fff;
+				margin: 5px;
+				float: left;
+				padding: 5px;
+				width: 424px;
+				border: dashed 3px #888;
+				min-height: 110px;
+			}
+			#modal {
+				position: absolute;
+				top: 40%;
+				display: none;
+				
+			}
+			.vignette_galerie, .vignette_dossier {
+				display: inline-block;
+				width: 100px;
+				height: 100px;
+				margin: 2px;
+				border: solid 1px #ccc;
+			}
+			.titre_dossier {
+				margin: 0; padding: 2px;
+				display: block;
+				font: 16px bold;
+				font-family: Arial, Helvetica, sans-serif;
+				color: #fff;
+				background: #5b89ae;
+			}
+			.clean {border: none; font-size: 0; clear:both; border-color: transparent; height:1px; margin:0; padding:0}
+		</style>
+		<script language='JavaScript' src='scripts/prototype.js'></script>
+		<script language='JavaScript' src='scripts/scriptaculous.js'></script>
+	</head>
+	<body>
+		<div id='main'>
+			<div id='trash'><img src="images/bin.png" alt="poubelle" /></div>
+			<div id='galerie'></div>
+			<div id='folders'>
+				<h2 class="titre_dossier">Dossiers Personnels</h2>
+					Créer un dossier
+				<h2 class="titre_dossier">Dossiers Publics</h2> 
+					<div class="accordion_content">coucou</div>
+			</div>
+			<div id='content'></div>
+			<div class='clean'></div>
+			<div id='modal'></div>
+		</div>
+		<script>
+			new Ajax.Request('www/snapshot.php',{
+				method: 'post',
+				parameters: {action: 'galerie'},
+				onSuccess: function(transport) {
+					//alert(transport.responseText);
+					if(transport.responseText.blank()) return;
+					var reponses = transport.responseText.split(',');
+					for (var i=0; i<reponses.length; i++) {
+						var adresse = reponses[i].split('@');
+						var vignette = new Element('img',{'src' : adresse[1]});
+						var d = new Element('div',{'id': 'g'+adresse[0], 'class' : 'vignette_galerie' }).update(vignette);
+						Element.insert('galerie',d);
+						new Draggable('g'+adresse[0],{revert: true, ghosting: true});
+					}
+				}
+			})
+			new Ajax.Request('www/snapshot.php',{
+				method: 'post',
+				parameters: {action: 'contenu_dossier'},
+				onSuccess: function(transport) {
+					//alert(transport.responseText);
+					if(transport.responseText.blank()) return;
+					var reponses = transport.responseText.split(',');
+					for (var i=0; i<reponses.length; i++) {
+						var r = reponses[i].split('@');
+						var vignette = new Element('img',{'src' : r[0]});
+						var d = new Element('div',{'id': 'co'+r[1], 'class' : 'vignette_dossier' }).update(vignette);
+						Element.insert('content',d);
+						new Draggable('co'+r[1],{revert: true, ghosting: true});
+					}
+				}
+			})
+			Droppables.add('content',{
+				accept: 'vignette_galerie',
+				onDrop: function(element){
+					var id = 'co' + element.id.substr(1);
+					var d = new Element('div', {
+						'id': id,
+						'class': 'vignette_dossier'
+					}).update(element.firstChild.cloneNode(true))
+					Element.insert('content', d);
+					new Draggable(id, {
+						revert: true,
+						ghosting: true
+					})
+					$('content').highlight();
+					new Ajax.Request('www/snapshot.php', {
+						method: 'post',
+						parameters: {
+							action: 'transfert_galerie_dossier',
+							'id': element.id.substr(1),
+							onSuccess: function (transport){alert(transport.responseText)}
+						}
+					});
+				}
+			});
+			Droppables.add('galerie',{
+				accept: 'vignette_dossier',
+				onDrop: function(element){
+					new Ajax.Request('www/snapshot.php', {
+						method: 'post',
+						parameters: {
+							action: 'transfert_dossier_galerie',
+							'id': element.id.substr(2)
+						},
+						onSuccess: function (transport) {
+							var reponse = transport.responseText;
+							if(!reponse.blank()) {
+								var id = 'g'+reponse;
+								var d = new Element('div', {
+									'id': id,
+									'class': 'vignette_galerie'
+								}).update(element.firstChild.cloneNode(true))
+								Element.insert('galerie', d);
+								new Draggable(id, {
+									revert: true,
+									ghosting: true
+								})
+								$('galerie').highlight();
+								window.opener.snapshot_dossier();
+							}
+						}
+					});
+										
+				}
+			});
+			Droppables.add('trash',{
+				onDrop: function(element) {
+					new Ajax.Request('www/snapshot.php',{
+						method: 'post',
+						parameters: {action: 'supprimer','id':element.id},
+						onSuccess: function(transport) {
+							alert(transport.responseText);
+						}
+					})
+					element.remove();
+				}
+			})
+			
+		</script>
+	</body>
+</html>

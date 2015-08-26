@@ -1,0 +1,4 @@
+(- maximiser zone de visualisation)
+- téléchargement de modèles externes
+- documentation (aide en ligne)
+- export (enregistrement de la galerie)

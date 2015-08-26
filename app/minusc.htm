@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv=content-type content="text/html; charset=UTF-8">
+		<title>MinUSc - Visualisation de Minéraux</title>
+		<link href="css/jdrums.css" type="text/css" rel="stylesheet">
+		<link href="css/styles.css" type="text/css" rel="stylesheet">
+
+		<link rel="shortcut icon" href="../favicon.ico">
+		<script type="text/javascript" src="jsmol/JSmol.min.js"></script>
+		<script src="scripts/atomes.js"></script>
+		<script src="scripts/fichiers.js"></script>
+		<script src="scripts/formule.js"></script>
+		<script type="text/javascript">
+			var nb_atomes = 270;
+			var initscript = "select all; color cpk; spacefill 20%; wireframe 0.15;";
+			var atoms = [{
+				'symbol' : 'Si',
+				'charge' : 4,
+				'occupancy' : 1
+			}, {
+				'symbol' : 'O',
+				'charge' : -2,
+				'occupancy' : 1
+			}];
+			var volume = 112.9;
+			var no_avogadro = 6.022 * Math.pow(10, 23);
+			var crystal_type = "ionic";
+
+			function charger_bdd(filename, scr) {
+				var file_strict_name = filename.substr(0, filename.lastIndexOf('.'));
+				var filename_spt = 'set echo bottom left;font echo 20 arial bold;color echo white; echo "' + file_strict_name + '"; ';
+				var initscript = ( typeof (scr) != 'undefined') ? initscript0 + scr : initscript0;
+				var spt = "load \"jmol/" + filename + "\" {5,5,5}; history on; " + filename_spt + initscript;
+				executer(spt);
+				initialiser();
+			}
+
+			states = new Array();
+			function snapshot_dossier() {
+				new Ajax.Request("www/snapshot.php", {
+					method : 'post',
+					parameters : {
+						action : 'importation'
+					},
+					onSuccess : function(transport) {
+						snapshot(transport.responseText.split('#;.;#'));
+					}
+				})
+			}
+
+			function snapshot(origine) {
+				if (origine) {
+					var image = origine[0];
+					var state_data = origine[1];
+				} else {
+					var image_data = jmolGetPropertyAsString("image");
+					var image = "data:image/jpeg;base64," + image_data;
+					var state_data = jmolGetPropertyAsString("stateInfo") + etat_menu_mailles();
+				}
+				var num = states.length;
+				states[num] = state_data;
+				var vignette = new Element('img', {
+					'src' : image,
+					'id' : 'vignette' + num,
+					'class' : 'vignette'
+				})
+				var lien = new Element('a', {
+					'href' : "javascript: nettoieScript(states[" + num + "]);"
+				}).update(vignette);
+
+				var num = $('#thumbnails').childNodes.length;
+				var poubelle = new Element('img', {
+					'src' : 'images/effacer.gif'
+				})
+				var supprimer = new Element('a', {
+					'href' : "javascript: pan_commande.galerie.kill(" + num + ")"
+				}).update(poubelle);
+
+				var conteneur = document.createElement("div");
+				conteneur.appendChild(lien);
+				conteneur.appendChild(supprimer);
+
+				$('#thumbnails').appendChild(conteneur);
+
+				pan_commande.panneau.show('galerie', 4);
+
+				//pour la version en ligne, créer une image sur le serveur et la renvoyer
+				if ((!origine) && (document.location.href.indexOf('http') == 0))
+					new Ajax.Request("www/snapshot.php", {
+						method : 'post',
+						parameters : {
+							action : 'cliche',
+							data : image_data,
+							spt : state_data
+						},
+						onSuccess : function(transport) {
+							//alert(transport.responseText);
+							$('#vignette' + num).src = transport.responseText;
+							//alert(dump($('#vignette'+num)));
+
+						}
+					});
+			}
+
+			function nettoieScript(spt) {
+				if (spt.indexOf("/*SPLIT*/") == -1) {
+					var pos = spt.indexOf("javascript");
+					var spt1 = spt.substring(0, pos - 1);
+					var spt2 = spt.substring(pos);
+					spt = spt1 + "/*SPLIT*/;" + spt2 + "; javascript initialiser()"
+				}
+				Jmol.script(minusc, spt)
+			}
+
+			function etat_menu_mailles() {
+				var sel = [];
+				$('#cells select').each(function() {
+					sel.push(this.disabled);
+				});
+
+				var disabled = $('#cells select').prop('disabled');
+				spt = '/*SPLIT*/; javascript "initialiser_menu_mailles(' + disabled + ',[' + sel.join(',') + '])"; javascript initialiser()';
+				return spt;
+			}
+
+			function initialiser_menu_mailles(disabled, selection) {
+				var disabled = disabled || false;
+				var selection = selection || Array(0, 0, 0);
+
+				$('#cells select').each(function(index) {
+					this.selectedIndex = selection[index];
+					this.disabled = disabled;
+				});
+			}
+
+			function initialiser(flag) {
+				extraction_info();
+				pan_commande = new Imh();
+				if (!flag)
+					initialiser_menu_mailles();
+				activer_panneau("controle");
+				if (is_mode_formule) {
+					is_mode_formule = false;
+					$("#activer_mailles").css('display', 'none');
+					executer("set pickcallback 'messagesClics'; set echo compteur; echo ;")
+				}
+				if (crystal_type == 'molecular') {
+					$(".is_bouton_molecular").css('display', 'inline');
+					$(".is_menu_molecular").css('display', 'block');
+					$(".is_not_molecular").css('display', 'none');
+					
+					pan_commande.commandes.baton_off.script += '; hbonds off;';
+
+					var a = Jmol.evaluate(minusc, "{cell={1 1 1}}.molecule.all.count().sort(2).reverse[1].find('\\\\d')[1]");
+					
+					var spt = "select all; color translucent 0.85; ";
+					spt += "select molecule="+a+"; define molmaille selected; wireframe 0.15; cpk 20%; color cpk; color translucent 0; ";
+					spt += "select within(molecule,within(2.7,molmaille)); display selected or displayed; select selected and not molmaille; define contact_molecule selected; color translucent 0.7; ";
+					spt += "select within(2.7,molmaille) and not molmaille; color translucent 0; select all; "
+					spt += "contact ID \"molecular_contact\" {molmaille} "
+					
+					pan_commande.commandes.contact_vdw.script = spt + "surface";
+					pan_commande.commandes.contact_full.script = spt + "full";
+					pan_commande.commandes.contact_connect.script = spt + "connect";
+					
+
+				} else {
+					$(".is_bouton_molecular").css('display', 'none')
+					$(".is_menu_molecular").css('display', 'none')
+					$(".is_not_molecular").css('display', 'block')
+				}
+
+			}
+
+			function extraction_info_maille() {
+				function determination_systeme(txt) {
+					var sys = 'Non déterminé';
+					var num = parseInt(txt);
+					if (isNaN(num)) {
+
+					} else {
+						if (num < 3)
+							sys = "Triclinique";
+						else if (num < 16)
+							sys = "Monoclinique";
+						else if (num < 75)
+							sys = "Orthorhombique";
+						else if (num < 143)
+							sys = "Tétragonal";
+						else if (num < 168)
+							sys = "Trigonal";
+						else if (num < 195)
+							sys = "Hexagonal";
+						else
+							sys = "Cubique";
+					}
+					return sys;
+				}
+
+				//show unitcell : a=4.91239, b=4.91239, c=5.40385, alpha=90.0, beta=90.0, gamma=120.0
+				var unitcell = Jmol.evaluate(minusc, 'script("show unitcell")');
+				var uP = unitcell.match(/[0-9\.]+/g);
+				//console.log([unitcell,uP])
+
+				//calcul du volume
+				var v = 1;
+				for (var i = 0; i < 6; i++) {
+					if (i < 3) {
+						v = v * parseFloat(uP[i]);
+					} else {
+						v = v * Math.sin(parseFloat(uP[i]) / 180 * Math.PI);
+					}
+				}
+
+				//détermination du système cristallin
+				var s = Jmol.evaluate(minusc, "script('show spacegroup').split().find('international table number').find('\\\\d+','m')");
+				systeme = determination_systeme(s);
+
+				volume = v;
+				//console.log(v + systeme);
+			}
+
+			function extraction_info() {
+				function charge(valeur) {
+					var ret = "";
+
+					var signe = "";
+					if (valeur < 0)
+						signe = "-";
+					else if (valeur > 0)
+						signe = "+";
+
+					var val = Math.abs(valeur);
+					if (val > 1)
+						return val + signe;
+					else
+						return signe;
+				}
+
+				extraction_info_maille();
+
+				var infos = Jmol.evaluate(minusc, "{*}.find('MF').split(' ').find('[a-zA-Z]+','m').join(',')")
+				//console.log(infos)
+				if (infos) {
+					var tab_infos = infos.split(','), spt = "'['+";
+
+					for (var i = 0, l = tab_infos.length; i < l; i++) {
+						spt += "'{\"charge\":'+{_" + tab_infos[i] + "}[0].charge+',\"occupancy\":'+{_" + tab_infos[i] + "}.occupancy+',\"ionic\":'+{_" + tab_infos[i] + "}[0].ionic+',\"symbol\":\"'+{_" + tab_infos[i] + "}[0].symbol+'\"},'+";
+					}
+					var r = Jmol.evaluate(minusc, spt.slice(0, -3) + "'+']'");
+
+					atoms = JSON.parse(r);
+					//console.log(atoms);
+
+					//atoms = new Array();
+					var legende = [];
+					//legende.cpk.length=0;
+					for (var i = 0, imax = atoms.length; i < imax; i++) {
+						atoms[i].volumeTotal = 0;
+						atoms[i].masseTotale = 0;
+						atoms[i].chargeTotale = 0;
+						atoms[i].nbTotal = 0
+
+						var sym = atoms[i].symbol
+						if (sym == '')
+							continue;
+						//atoms.push(liste[i]);
+						var spt = atomes[sym];
+
+						atoms[i].txtCharge = charge(atoms[i].charge);
+
+						if ( typeof (spt) == 'string') {
+							legende.push({
+								'text' : sym,
+								'script' : spt,
+								'classe' : sym.toLowerCase(),
+								'charge' : atoms[i].txtCharge
+							});
+						}
+					}
+					if (legende.length > 0) {
+						legendes.cpk = legende;
+						actualise_legende(legende);
+					}
+				}
+			}
+
+			function retourMessages(applet, txt) {
+
+			}
+
+			function renvoyerMessages(applet, txt) {
+				if (txt.indexOf('Script completed') > -1) {
+					actualise_messages();
+				} else
+					messages.push(txt)
+				return;
+
+			}
+
+			var messages = Array();
+			function actualise_messages() {
+
+				function message_erreur(t) {
+					return "<img src='images/warning.gif' align='middle'/><span style='color: red;'>" + t + "</span>\n";
+				}
+
+				function message_debut_script(t) {
+					t = t.substring(0, t.indexOf('started'))
+					return "<span class='script'>" + t + "</span>\n"
+				}
+
+				function message_script_entre(t) {
+					return "<span class='spt'>" + t + "</span>";
+				}
+
+				function texte_message(t) {
+					var ret = true;
+					if (t.indexOf('ERREUR') == 0) {
+						t = message_erreur(t);
+					} else if (t.indexOf('started') > 7) {
+						t = message_debut_script(t);
+						ret = false;
+					} else if (t.indexOf('>') == 0) {
+						t = message_script_entre(t);
+					}
+
+					return t + ((ret) ? "<br />\n" : "\n");
+					console.log(t);
+				}
+
+				destination = document.getElementById('messages')
+				var txt = ""
+
+				for (var i = 0, j = messages.length; i < j; i++) {
+					txt = texte_message(messages[i]) + txt;
+				}
+				destination.innerHTML = txt + destination.innerHTML;
+				messages = [];
+			}
+
+			function ajouterMessage(txt) {
+				messages.push(">" + txt)
+				//alert(message);
+			}
+
+			var busy = false;
+			var encours = new Image();
+			encours.src = "images/spinner.gif";
+			var fini = new Image();
+			fini.src = "images/noir.gif";
+
+			function debutScript() {
+				busy = true;
+				//$('busy').style.background="white";
+				$('#busy-icon').src = encours.src;
+			}
+
+			function finScript() {
+				busy = false;
+				//$('busy').style.background="black";
+				$('#busy-icon').src = fini.src;
+			}
+
+			function isBusy() {
+				if (busy)
+					alert('Script en cours, veuillez patienter');
+				return busy;
+			}
+
+			function executer(cmds) {
+				if (cmds == "")
+					return;
+				var occupe = isBusy();
+				if (occupe) {
+					return;
+				}
+				debutScript();
+				ajouterMessage(cmds);
+				pan_commande.ligne_commande.ajouter(cmds);
+				Jmol.script(minusc, cmds);
+				finScript();
+				//renvoyerMessages(message);
+			}
+
+			function aide(filename) {
+				filename = "aide/" + filename;
+				frames['f_aide'].location.href = filename;
+			}
+
+			function undo() {
+				answer = Jmol.evaluate(minusc, "script('show history; history on;')");
+				listing = answer[0][0][3];
+				console.log(answer)//+'!! '+listing);
+				pieces = listing.split(' #|;');
+				fin = pieces[pieces.length - 1].split('|');
+				debut = pieces.slice(0, -1);
+				listing = debut.concat(fin);
+
+				while (listing[listing.length - 1] == ' ') {
+					listing.length--;
+				}
+				spt = '';
+
+				for ( i = 0; i < listing.length - 1; i++) {
+					if ((listing[i] != '') && (listing[i].indexOf('#??') == -1))
+						spt += listing[i] + ' #|;';
+				}
+				if (listing[0].indexOf(initscript) == -1) {
+					spt = initscript + ' #|;' + spt;
+				}
+				//console.log(spt);
+				executer(spt);
+			}
+
+			function analyse_message(txt) {
+				if (txt.indexOf('atoms selected') > 0) {
+					nb_atomes = parseInt(txt);
+					return nb_atomes + ' atome(s) s&eacute;lectionn&eacute;(s)';
+				} else if (txt.indexOf('Script completed') == 0) {
+					actualise_nb_atomes(nb_atomes);
+					actualise_messages();
+					finScript();
+					return '';
+				} else if (txt.indexOf('atoms hidden') > 0) {
+					nb_atomes_caches = parseInt(txt);
+					return nb_atomes_caches + ' atome(s) cach&eacute;(s)';
+				} else if (txt.indexOf('script ERROR') != -1) {
+					return "<img src='images/warning.gif' align='middle'/><span style='color: red;'>" + txt + "</span>";
+				}
+				return txt;
+			}
+
+			function messagesClics(applet, txt) {
+				console.log(txt)
+				if (txt != '') {
+					var messages = txt.split(' ');
+					txt = messages[0] + " " + messages[1];
+					document.getElementById('clic').innerHTML = txt;
+				}
+			}
+
+			function actualise_nb_atomes(txt) {
+				return;
+				couche = document.getElementById('nb_atomes');
+				if (txt > 1)
+					fintexte = " atomes s&eacute;l&eacute;ctionn&eacute;s";
+				else {
+					fintexte = " atome s&eacute;lectionn&eacute;";
+				}
+				couche.innerHTML = txt + fintexte;
+				couche.style.color = (txt == 0) ? "#f80" : "#fff";
+			}
+
+			legendes = {
+				'cpk' : [{
+					'text' : 'C',
+					'script' : 'carbon',
+					'classe' : 'c'
+				}, {
+					'text' : 'H',
+					'script' : 'hydrogen',
+					'classe' : 'h'
+				}, {
+					'text' : 'O',
+					'script' : 'oxygen',
+					'classe' : 'o'
+				}, {
+					'text' : 'N',
+					'script' : 'nitrogen',
+					'classe' : 'n'
+				}, {
+					'text' : 'S',
+					'script' : 'sulfur',
+					'classe' : 's'
+				}, {
+					'text' : 'P',
+					'script' : 'phosphorus',
+					'classe' : 'p'
+				}]
+			}
+
+			function toggle() {
+				spt = '';
+				this.value = !this.value;
+				interrupteur = (this.value) ? 'on' : 'off';
+				spt = this.command[interrupteur];
+				executer(spt);
+			}
+
+			function run() {
+				executer(this.script);
+				aide(this.aide);
+			}
+
+			function charger_fichier(mineral) {
+				var filename_spt = ' {3,3,3}; history on; set echo bottom left;font echo 20 arial bold; color echo steelblue; echo "' + mineral + '"; ';
+				var f = liste_fichiers[mineral]
+				crystal_type = (f[2] || "ionic");
+				var spt_spheres = ((crystal_type == "metal") || (crystal_type == "ionic")) ? "; function sphere(){cpk ionic}; " : "function sphere(){cpk} ;";
+
+				var initscript = filename_spt + initscript0 + f[1] + spt_spheres + "; crystal_type = '" + crystal_type + "'; javascript initialiser(); zoomto 0.6 {displayed} 100;";
+				//spt = "load \"jmol/" + f[0] + "\" {5,5,5}; history on; " + filename_spt + initscript + ";/*SPLIT*/;"
+				//Jmol.loadFile(minusc, "jmol/" + f[0], initscript);
+				console.log("load \"jmol/" + f[0]+"\" "+ initscript);
+				Jmol.script(minusc, "load \"jmol/" + f[0]+"\""+ initscript);
+				
+				is_mode_formule = false;
+				//Jmol.script(minusc, "javascript initialiser()");
+				//initialiser();
+			}
+
+			function affiche_fichiers() {
+				document.open();
+				for (i in liste_fichiers) {
+					document.writeln('<a href="javascript: charger_fichier(\'' + i + '\')">' + i + '</a>');
+				}
+				document.close();
+			}
+
+			function Imh() {
+				this.panneau = {
+					'hide' : function(nom) {
+						$('#' + nom).css('marginLeft', '-2000px');
+					},
+					'show' : function(nom, l) {
+						var l = (arguments.length > 1) ? l : '0';
+						$('#' + nom).css('marginLeft', l + 'px');
+					}
+				}
+				this.galerie = {
+					'state' : 0,
+					'toggle' : function() {
+						if (this.state == 0) {
+							this.state = 1;
+							$('#galerie').css('marginLeft', '3pt');
+						} else {
+							this.state = 0;
+							$('#galerie').css('marginLeft', '-2000pt');
+						}
+					},
+					'kill' : function(num) {
+						var noeud = $('#thumbnails').childNodes[num];
+						$('#thumbnails').removeChild(noeud);
+					}
+				}
+				this.reglages = {
+					'visibility' : {
+						'state' : 0,
+						'toggle' : function() {
+							if (this.state == 0) {
+								this.state = 1;
+								$('#reglages').css({
+									'visibility' : 'visible',
+									'margin-left' : '0px'
+								});
+								$('#aide').css({
+									'visibility' : 'hidden',
+									'margin-left' : '2000px'
+								});
+								$('#commande').css({
+									'visibility' : 'hidden',
+									'margin-left' : '2000px'
+								});
+							} else {
+								this.state = 0;
+								$('#reglages').css({
+									'visibility' : 'hidden',
+									'margin-left' : '2000px'
+								});
+								$('#aide').css({
+									'visibility' : 'visible',
+									'margin-left' : '0px'
+								});
+							}
+						}
+					}
+					,
+					'setQuality' : function(num) {
+						var spt="";
+						spt += (num > 7)? "set antialiasdisplay true;" : "set antialiasdisplay false;";
+						spt += (num > 4)? "set zshade on;" : "set zshade off;";
+						spt += "set platformspeed "+num;
+						executer(spt);
+					},
+					'changeDisplay' : function() {
+						
+					}
+				}
+				this.ligne_commande = {
+					'liste' : [''],
+					'indice' : 0,
+					'visibility' : {
+						'state' : 0,
+						'toggle' : function() {
+							if (this.state == 0) {
+								this.state = 1;
+								$('#commande').css({
+									'visibility' : 'visible',
+									'margin-left' : '0px'
+								});
+								$('#aide').css({
+									'visibility' : 'hidden',
+									'margin-left' : '2000px'
+								});
+								$('#reglages').css({
+									'visibility' : 'hidden',
+									'margin-left' : '2000px'
+								});
+								document.f_commande.ligne_commande.focus();
+							} else {
+								this.state = 0;
+								$('#commande').css({
+									'visibility' : 'hidden',
+									'margin-left' : '2000px'
+								});
+								$('#aide').css({
+									'visibility' : 'visible',
+									'margin-left' : '0px'
+								});
+								;
+							}
+						}
+					},
+					'undo' : function() {
+						if (this.indice == 0)
+							return;
+						this.afficher(this.liste[this.indice]);
+						this.indice--;
+					},
+					'redo' : function() {
+						if (this.indice + 1 >= this.liste.length)
+							return;
+						this.indice++;
+						this.afficher(this.liste[this.indice]);
+					},
+					'afficher' : function(txt) {
+						document.f_commande.ligne_commande.value = txt;
+						document.f_commande.ligne_commande.select();
+					},
+					'ajouter' : function(spt) {
+						if (this.liste.length > this.indice + 1)
+							this.liste.length = this.indice + 1;
+						this.indice++;
+						this.liste[this.indice] = spt;
+					},
+					'executer' : function(spt) {
+						//this.ajouter(spt);
+						executer(spt);
+						$('#ligne_commande').value = '';
+					}
+				}
+				this.halos = {
+					'value' : false,
+					'toggle' : toggle,
+					'command' : {
+						'on' : 'selectionHalos on;',
+						'off' : 'selectionHalos off'
+					}
+				}
+				this.unitcell = {
+					'value' : true,
+					'toggle' : toggle,
+					'command' : {
+						'on' : 'set unitcell dotted; set axes 3;',
+						'off' : 'unitcell off; axes off;'
+					}
+				}
+				this.plans = {
+					'value' : 0,
+					'set' : function(val) {
+								var spt = '';
+									
+								this.value = val ^ this.value & val; //permutte 0, 1 et 2 ; annule si 1 et 1 ou 2 et 2
+								
+								spt = this.command[this.value];
+								executer(spt);
+							},
+					//0 : off
+					//1 : plans intérieurs
+					//2 : plans extérieurs
+					'command' : ['draw pl1 off; draw pl2 off; draw pl3 off; draw pl4 off; draw pl5 off; draw pl6 off;',
+								'draw pl1 off; draw pl2 off; draw pl3 off; draw pl4 off; draw pl5 off; draw pl6 off; draw pl1 plane {0 0 0/1} {1 0 0/1} {1/2 1 0}; draw pl2 plane {0 0 0/1} {0 1 0/1} {0 1/2 1}; draw pl3 plane {0 0 0/1} {0 0 1/1} {1 0 1/2}; color $pl1 dodgerblue translucent 0.2; color $pl2 dodgerblue translucent 0.2; color $pl3 dodgerblue translucent 0.2;',
+								'draw pl1 plane {0 0 0/1} {1 0 0/1} {1/2 1 0/1}; draw pl2 plane {0 0 0/1} {0 1 0/1} {0 1/2 1/1}; draw pl3 plane {0 0 0/1} {0 0 1/1} {1 0 1/2}; draw pl4 plane {1 1 1/1} {1 1 0/1} {0 1 1/2}; draw pl5 plane {1 1 1/1} {0 1 1/1} {1/2 0 1}; draw pl6 plane {1 1 1/1} {1 0 1/1} {1 1/2 0}; color $pl1 dodgerblue translucent 0.2; color $pl2 dodgerblue translucent 0.2; color $pl3 dodgerblue translucent 0.2; color $pl4 dodgerblue translucent 0.2; color $pl5 dodgerblue translucent 0.2; color $pl6 dodgerblue translucent 0.2']
+				}
+				this.plansInterieurs = {
+					'value' : false,
+					'toggle' : toggle,
+					'command' : {
+						'on' : ' draw pl1 off; draw pl2 off; draw pl3 off; draw pl4 off; draw pl5 off; draw pl6 off; draw pl1 plane {2 2 2/1} {3 2 2/1} {5/2 3 2/1}; draw pl2 plane {2 2 2/1} {2 3 2/1} {2 5/2 3/1}; draw pl3 plane {2 2 2/1} {2 2 3/1} {3 2 5/2}; color $pl1 dodgerblue translucent 0.2; color $pl2 dodgerblue translucent 0.2; color $pl3 dodgerblue translucent 0.2;',
+						'off' : 'draw pl1 off; draw pl2 off; draw pl3 off; draw pl4 off; draw pl5 off; draw pl6 off;'
+					}
+				}
+				this.plansExterieurs = {
+					'value' : false,
+					'toggle' : toggle,
+					'command' : {
+						'on' : 'draw pl1 plane {2 2 2/1} {3 2 2/1} {5/2 3 2/1}; draw pl2 plane {2 2 2/1} {2 3 2/1} {2 5/2 3/1}; draw pl3 plane {2 2 2/1} {2 2 3/1} {3 2 5/2}; draw pl4 plane {3 3 3/1} {3 3 2/1} {2 3 5/2}; draw pl5 plane {3 3 3/1} {2 3 3/1} {5/2 2 3}; draw pl6 plane {3 3 3/1} {3 2 3/1} {3 5/2 2}; color $pl1 dodgerblue translucent 0.2; color $pl2 dodgerblue translucent 0.2; color $pl3 dodgerblue translucent 0.2; color $pl4 dodgerblue translucent 0.2; color $pl5 dodgerblue translucent 0.2; color $pl6 dodgerblue translucent 0.2',
+						'off' : 'draw pl1 off; draw pl2 off; draw pl3 off; draw pl4 off; draw pl5 off; draw pl6 off;'
+					}
+				}
+				this.cache = {
+					'value' : true,
+					'toggle' : toggle,
+					'command' : {
+						'on' : 'display cell={1 1 1}',
+						'off' : 'display all'
+					}
+				}
+				this.picking = {
+					'value' : true,
+					'toggle_proxy' : toggle,
+					'toggle' : function() {
+						this.toggle_proxy();
+						if (!this.value)
+							pan_commande.halos.value = true;
+					},
+					'command' : {
+						'on' : 'set picking; selectionHalos off',
+						'off' : 'set picking select atom; selectionHalos on'
+					}
+				}
+				this.commandes = {
+					'cpk_ionic' : {
+						'script' : 'sphere()', //if (({*}.charge.max==0)&&({*}.charge.min==0)); cpk; else; cpk ionic; end if;',
+						'aide' : 'rayon_ionique.html',
+						'run' : run
+					},
+					'cpk_20' : {
+						'script' : 'cpk 20%;',
+						'aide' : 'rayon_20.html',
+						'run' : run
+					},
+					'cpk_off' : {
+						'script' : 'cpk off;',
+						'aide' : 'rayon_0.html',
+						'run' : run
+					},
+					'baton' : {
+						'script' : 'wireframe 0.15;',
+						'aide' : 'liaison_baton.html',
+						'run' : run
+					},
+					'fdf' : {
+						'script' : 'wireframe;',
+						'aide' : 'liaison_fdf.html',
+						'run' : run
+					},
+					'baton_off' : {
+						'script' : 'wireframe off',
+						'aide' : 'liaison_0.html',
+						'run' : run
+					},
+					'polyhedra' : {
+						'script' : 'if ({not selected}.size>0); polyhedra bonds (selected) noedges; else; polyhedra bonds (selected and charge>=0) noedges; endif; color polyhedra opaque;',
+						'aide' : 'polyhedre.html',
+						'run' : run
+					},
+					'polyhedra_translucent' : {
+						'script' : 'if ({not selected}.size>0); polyhedra bonds (selected) noedges; else; polyhedra bonds (selected and charge>=0) noedges; endif; color polyhedra translucent;',
+						'aide' : 'polyhedre.html',
+						'run' : run
+					},
+					'polyhedra_collapsed' : {
+						'script' : 'if ({not selected}.size>0); polyhedra bonds (selected) collapsed faceCenterOffSet=0.0 edges; else; polyhedra bonds (selected and charge>=0) collapsed faceCenterOffSet=0.0 edges; endif; color polyhedra opaque;',
+						'aide' : 'polyhedre.html',
+						'run' : run
+					},
+					'polyhedra_off' : {
+						'script' : 'polyhedra off;',
+						'aide' : 'polyhedre_0.html',
+						'run' : run
+					},
+					'halos' : {
+						'script' : 'if (selectionHalos); set selectionHalos off; else; set selectionHalos on; endif;',
+						'aide' : 'halos.html',
+						'run' : run
+					},
+					'axes' : {
+						'script' : 'if (showAxes); axes off; unitcell off; else; set axes 3; set unitcell dotted; endif;',
+						'aide' : 'axes.html',
+						'run' : run
+					},
+					'charges' : {
+						'script' : 'if ({*}[0].label.size=0); label %[charge]; else; label off; endif;',
+						'aide' : 'charges.html',
+						'run' : run
+					},
+					'picking' : {
+						'script' : 'if (picking="atom"); set picking; set selectionHalos off; else; set picking select atom; set selectionHalos on; endif;',
+						'aide' : 'picking.html',
+						'run' : run
+					},
+					'navigate' : {
+						'script' : 'if (navigationperiodic); restore state nav; else; save state nav; set navigationmode on; set navigationperiodic true; set navigationspeed 100; set showNavigationPointAlways; display all; axes off; unitcell off; endif;',
+						'aide' : 'navigate.html',
+						'run' : run
+					},
+					'fond' : {
+						'script' : 'if (backgroundcolor="[x000000]"); background white; else; background black; endif;',
+						'aide' : 'fond.html',
+						'run' : run
+					},
+					'hbonds' : {
+						'script' : 'calculate hbonds; hbonds on;',
+						'aide' : 'hbond.html',
+						'run' : run
+					},
+					'contact_vdw' : {
+						'script' : '',
+						'aide' : 'contact.html',
+						'run' : run
+					},
+					'contact_connect' : {
+						'script' : '',
+						'aide' : 'contact.html',
+						'run' : run
+					},
+					'contact_full' : {
+						'script' : '',
+						'aide' : 'contact.html',
+						'run' : run
+					},
+					'contact_off' : {
+						'script' : 'define contact_molecule none; select all; color translucent 0; contact off; javascript actualise_cell()',
+						'aide' : 'contact.html',
+						'run' : run
+					}
+				}
+			}
+
+			pan_commande = new Imh();
+
+			function actualise_cell() {
+				i = document.cells.a.options[document.cells.a.selectedIndex].value;
+				j = document.cells.b.options[document.cells.b.selectedIndex].value;
+				k = document.cells.c.options[document.cells.c.selectedIndex].value;
+				cellules = new Array();
+
+				for ( x = 0; x < i; x++) {
+					if (i == 1)
+						x = 1;
+					for ( y = 0; y < j; y++) {
+						if (j == 1)
+							y = 1;
+						for ( z = 0; z < k; z++) {
+							if (k == 1)
+								z = 1;
+							cellules[cellules.length] = "{" + (x + 0) + " " + (y + 0) + " " + (z + 0) + " " + "}";
+						}
+					}
+				}
+
+				spt = "display ";
+				for (x in cellules) {
+					if ( typeof (cellules[x]) == 'string')
+						spt += "cell=" + cellules[x] + " or "
+				}
+				spt += "none or contact_molecule; ";
+				spt += "zoomto 0.6 {displayed} 100;" ;
+
+				executer(spt);
+			}
+
+			function actualise_legende(donnees) {
+				var txt = '';
+
+				for ( i = 0; i < donnees.length; i++) {
+					if ( typeof (donnees[i].text) == 'undefined')
+						break;
+					else if (donnees[i].text == '|')
+						txt += '<br>';
+					else {
+						txt += "<a href='javascript: executer(\"select " + donnees[i].script + "; flash\")' class='" + donnees[i].classe + "'>" + donnees[i].text + "</a><sup class='" + donnees[i].classe + "'>" + donnees[i].charge + "</sup>&nbsp; ";
+					}
+				}
+				document.getElementById('liste_atomes').innerHTML = txt;
+			}
+
+			function activer_panneau(panneau) {
+				panneaux = ['controle', 'fichier', 'formule'];
+				for ( i = 0; i < panneaux.length; i++) {
+					if (panneau == panneaux[i])
+						pan_commande.panneau.show(panneaux[i]);
+					else
+						pan_commande.panneau.hide(panneaux[i]);
+				}
+			}
+
+		</script>
+	</head>
+
+	<body class="texte">
+		<div id="visualisation">
+			<div id="applet">
+				<script type="text/javascript">
+					//document.getElementById("visualisation").style.width=coteApplet+"px";
+					//document.getElementById("visualisation").style.height=coteApplet+"px";
+					initscript0 = "restrict none; select all; color cpk; spacefill 20%; wireframe 0.15; color selectionHalos none;" + "unitcell {1 1 1} dotted; display cell={1 1 1}; " + "set selectionHalos off; set axes 3; zoom 200; set zshade on; set zshadepower 2; function flash {set selectionhalos on; delay 0.3; set selectionhalos off}";
+					//initscript = initscript0+"set echo bottom left;font echo 20 arial bold;color echo white; echo Quartz;";
+					parametre = (function() {
+						var p = {};
+
+						function majuscule(str) {
+							str = str.toLowerCase();
+							str = str[0].toUpperCase() + str.substring(1);
+							return str;
+						}
+
+						if ((document.location.search.indexOf("?") == 0) && (document.location.search.length > 1)) {
+							var a = decodeURI(document.location.search.substring(1));
+							if (a.indexOf("=") == -1) {
+								p.file = majuscule(a)
+							} else {
+
+								var tab = a.split("&")
+								for ( i = 0; i < tab.length; i++) {
+									if (tab[i].indexOf("=") == -1) {
+										
+										p.file = majuscule(tab[i]);
+										continue;
+									}
+									var paramItem = tab[i].split("=")
+									p[paramItem[0]] = paramItem[1];
+								}
+							}
+						}
+						return p;
+					})()
+					nomFichier = ((liste_fichiers[parametre.file]) ? parametre.file : "Quartz")
+					enlocal = ((document.location.href.indexOf('http') == 0)) ? '' : 'Signed';
+					var Info = {
+						addSelectionOptions : false,
+						color : "#000000",
+						debug : false,
+						defaultModel : "",
+						height : '100%',
+						isSigned : (enlocal == 'Signed'),
+						jarFile : "JmolApplet" + enlocal + "0.jar",
+						jarPath : "jsmol/java",
+						j2sPath : "jsmol/j2s",
+						memoryLimit : 512,
+						readyFunction : null,
+						script : "set messagecallback 'renvoyerMessages';set pickcallback 'messagesClics'; set perspectiveDepth off; javascript charger_fichier('" + nomFichier + "');",
+						src : null,
+						use : "HTML5 Java noWebGL noImage",
+						width : '100%'
+					};
+
+					minusc = Jmol.getApplet("minusc", Info);
+
+				</script>
+			</div>
+			<div id="legende">
+				<div id="busy" style="background: #000;"><img id="busy-icon" src="images/noir.gif" height="16" width="16">
+				</div>
+				<div id="nb_atomes"> </div>
+				<div id="clic"> </div>
+				<div style="padding: 5px;">
+					<form action="#" method="get" name="cells" id="cells" style="margin: 0px; padding: 0px; display: inline;" onsubmit="false;">
+						Mailles : a:
+						<select name="a" onchange="actualise_cell()" style="width: 4em;">
+							<option value="1" selected="selected">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+						</select>
+
+						b:
+						<select name="b" onchange="actualise_cell()" style="width: 4em;">
+							<option value="1" selected="selected">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+						</select>
+
+						c:
+						<select name="c" onchange="actualise_cell()" style="width: 4em;">
+							<option value="1" selected="selected">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+						</select>
+						<span id="activer_mailles"><a href="#" onclick="mode_formule('off')">Désactiver Mode formule</a></span>
+						<!--<span id="navigation"><a href="#" onclick="pan_commande.commandes.navigate.run()">Navigation</a></span>-->
+					</form>
+				</div>
+				Sélectionner
+				<br>
+
+				Atomes : <span id="liste_atomes" style="font-weight: bold"><a class="o" href="#" onclick="executer('select oxygen; flash'); return false;">O</a> <a class="si" href="#" onclick="executer('select silicon; flash'); return false;">Si</a></span> - <span style="font-weight: bold"> <a class="h" href="#" onclick="executer('select all; flash'); return false;">Tous</a> <a class="h" href="#" onclick="executer('select none; flash'); return false;">Aucun</a></span>
+			</div>
+		</div>
+		<div id="conteneur_droit">
+			<div id="onglets">
+				<ul class="onglet">
+					<li>
+						<a href="#" onclick="activer_panneau('controle'); return false;">Commandes</a>
+					</li>
+					<li>
+						<a href="#" onclick="activer_panneau('fichier'); return false;">Fichier</a>
+					</li>
+					<li>
+						<a href="#" onclick="activer_panneau('formule'); mode_formule(); return false;">Formule</a>
+					</li>
+				</ul>
+			</div>
+
+			<div id="controle">
+				<div id="menu">
+					<!--<div id="annuler">-->
+					<!-- <a class="bouton_droit" href="javascript: undo()">-->
+					<!--<img src="images/undo.gif" border="0"><br>Annuler</a>-->
+					<!--<a href="#" onClick="redo()"><img src="images/redo.gif" border="0"></a>-->
+					<!--</div><div id="snapshot">-->
+					<!--</div>-->
+					<!--<div class="barre_boutons">-->
+					<fieldset>
+						<legend>
+							Afficher atomes
+						</legend>
+						<a class="bouton" href="javascript: pan_commande.commandes.cpk_ionic.run()"><img src="images/cpk100pc.gif" border="0" height="40" width="40">
+						<br>
+						Sphères</a>
+						<a class="bouton" href="javascript: pan_commande.commandes.cpk_20.run()"><img src="images/cpk20pc.gif" border="0" height="40" width="40">
+						<br>
+						Sphères 20%</a>
+						<a class="bouton" href="javascript: pan_commande.commandes.cpk_off.run()"><img src="images/noir.gif" border="0" height="40" width="40">
+						<br>
+						Effacer</a>
+					</fieldset>
+					<!--</div>-->
+					<fieldset>
+						<legend>
+							Afficher liaisons
+						</legend>
+						<a class="bouton" href="javascript: pan_commande.commandes.baton.run()"><img src="images/baton.gif" border="0" height="40" width="40">
+						<br>
+						Bâtonnets</a>
+						<a class="bouton" href="javascript: pan_commande.commandes.fdf.run()"><img src="images/fil2fer.gif" border="0" height="40" width="40">
+						<br>
+						Fil de fer</a>
+						<a class="bouton is_bouton_molecular" href="javascript: pan_commande.commandes.hbonds.run()"><img src="images/hbond.png" border="0" height="40" width="40">
+						<br>
+						Liaisons H</a>
+						<a class="bouton" href="javascript: pan_commande.commandes.baton_off.run()"><img src="images/noir.gif" border="0" height="40" width="40">
+						<br>
+						Effacer</a>
+					</fieldset>
+					<fieldset class="is_not_molecular">
+						<legend>
+							Afficher polyèdres
+						</legend>
+						<a class="bouton" href="javascript: pan_commande.commandes.polyhedra.run()"><img src="images/polyopaq.gif" border="0" height="40" width="40">
+						<br>
+						Plein</a>
+						<a class="bouton" href="javascript: pan_commande.commandes.polyhedra_translucent.run()"><img src="images/polyhedre2.gif" border="0" height="40" width="40">
+						<br>
+						Translucide</a>
+						<a class="bouton" href="javascript: pan_commande.commandes.polyhedra_collapsed.run()"><img src="images/polycoll.gif" border="0" height="40" width="40">
+						<br>
+						Creux</a>
+						<a class="bouton" href="javascript: pan_commande.commandes.polyhedra_off.run()"><img src="images/noir.gif" border="0" height="40" width="40">
+						<br>
+						Effacer</a>
+					</fieldset>
+					<fieldset class="is_menu_molecular">
+						<legend>
+							Afficher contacts
+						</legend>
+						<a class="bouton" href="javascript: pan_commande.commandes.contact_vdw.run()"><img src="images/contactvdw.png" border="0" height="40" width="40">
+						<br>
+						Surface</a>
+						<a class="bouton" href="javascript: pan_commande.commandes.contact_full.run()"><img src="images/contactfull.png" border="0" height="40" width="40">
+						<br>
+						Zones</a>
+						<a class="bouton" href="javascript: pan_commande.commandes.contact_connect.run()"><img src="images/contactconnect.png" border="0" height="40" width="40">
+						<br>
+						Connexions</a>
+						<a class="bouton" href="javascript: pan_commande.commandes.contact_off.run()"><img src="images/noir.gif" border="0" height="40" width="40">
+						<br>
+						Effacer</a>
+					</fieldset>
+					<fieldset>
+						<legend>
+							Activer/Désactiver
+						</legend>
+						<!--<a class="bouton" href="javascript: pan_commande.commandes.halos.run()">
+						<img src="images/halo.jpg" alt="halos de s&eacute;lection" border="0" height="40" width="40"><br>Halos</a>-->
+						<a class="bouton" href="javascript: pan_commande.commandes.axes.run()"> <img src="images/axes.gif" border="0" height="40" width="40">
+						<br>
+						Axes</a>
+						<a class="bouton" href="javascript: pan_commande.commandes.charges.run()"> <img src="images/plus_moins.png" border="0" height="40" width="40">
+						<br>
+						Charges</a>
+						<!--<a class="bouton" href="javascript: pan_commande.commandes.picking.run()">
+						<img src="images/souris.gif" border="0" height="25" width="18" style="vertical-align: middle; margin:1px 5px 0 5px;"><br>S&eacute;lection<br>Souris</a>-->
+						<a class="bouton" href="javascript: pan_commande.ligne_commande.visibility.toggle()"> <img src="images/form_text.gif" border="0" height="24" width="24" style="vertical-align: middle; margin:1px 5px 0 4px;">
+						<br>
+						Entrer
+						<br>
+						Scripts</a>
+						<!--<a class="bouton" href="javascript: pan_commande.galerie.toggle()" style="padding-bottom: 7px"><img src="images/snapshot.gif" height="32" width="32" border="0">
+						<br>
+						Clich&eacute;s</a>-->
+						<a class="bouton" href="javascript: pan_commande.commandes.fond.run()"> <img src="images/contrast.png" border="0" height="40" width="40">
+						<br>
+						Fond </a>
+						
+						<a class="bouton" href="javascript: pan_commande.reglages.visibility.toggle()"> <img src="images/reglages.png" border="0" height="40" width="40">
+						<br>
+						Réglages </a>
+					</fieldset>
+
+				</div>
+
+			</div>
+
+			<div id="fichier">
+				<div id="liste_fichiers">
+					<script>
+						affiche_fichiers()
+					</script>
+				</div>
+			</div>
+
+			<div id="formule">
+				<fieldset id="panneau_controle_formule">
+					<legend>
+						Restreindre l'affichage de la maille
+					</legend>
+					<a class="bouton" href="javascript: executer('display interieur')"> <img src="images/centre.png" width="100" height="100"/>
+					<br/>
+					<span class="initiale">I</span>ntérieur de la maille </a>
+					<a class="bouton" href="javascript: executer('display faces')"> <img src="images/face.png" width="100" height="100"/>
+					<br/>
+					<span class="initiale">F</span>aces </a>
+					<a class="bouton" href="javascript: executer('display aretes')"> <img src="images/arrete.png" width="100" height="100"/>
+					<br/>
+					<span class="initiale">A</span>rêtes </a>
+					<a class="bouton" href="javascript: executer('display sommets')"> <img src="images/sommet.png" width="100" height="100"/>
+					<br/>
+					<span class="initiale">S</span>ommets </a>
+					<hr class="separation" />
+				</fieldset>
+				
+				<fieldset id="panneau_plans_maille">
+					<legend>
+						Montrer/Cacher limites de mailles
+					</legend>
+					<a class="bouton" href="javascript: pan_commande.plans.set(1)"> <img src="images/planb.png" width="100" height="100"/>
+					<br/>
+					Maille ouverte </a>
+					<a class="bouton" href="javascript: pan_commande.plans.set(2)"> <img src="images/plans.png" width="100" height="100"/>
+					<br/>
+					Maille fermée </a>
+					<hr class="separation" />
+				</fieldset>
+				
+				<form name="tableau_elements" id="tableau_elements" style="clear: both;">
+					Compléter le tableau suivant :
+					<table id="tableau_formule">
+						<thead>
+							<tr>
+								<td ondblclick="remplissage_automatique()">Atome</td>
+								<td>I</td>
+								<td>F</td>
+								<td>A</td>
+								<td>S</td>
+								<td>Total</td>
+								<td>Masse</td>
+								<td>%</td>
+							</tr>
+						</thead>
+						<tbody id="liste_elements">
+							<tr>
+								<td>Si</td>
+								<td>
+								<input type="text" size="2" />
+								</td>
+								<td>
+								<input type="text" size="2" />
+								</td>
+								<td>
+								<input type="text" size="2" />
+								</td>
+								<td>
+								<input type="text" size="2" />
+								</td>
+								<td>
+								<input type="text" size="2" />
+								</td>
+								<td>
+								<input type="text" size="2" />
+								</td>
+								<td>
+								<input type="text" size="2" />
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					Masse volumique calculée : <span id="masse_volumique">0</span> g/cm<sup>3</sup>
+					<br />
+					Compacité calculée : <span id="compacite">0</span> % (volume)
+					<br />
+					Pourcentage d'hydratation : <span id="hydratation">0</span> % (masse)
+				</form>
+				
+				<table id="tableau_caracteristiques">
+					<thead>
+							<tr>
+								<td>Atome</td>
+								<td>Charge</td>
+								<td>Rayon (Å)</td>
+								<td>Masse (g.mol<sup>-1</sup>)</td>
+							</tr>
+						</thead>
+						<tbody id="liste_caracteristiques_elements">
+							<tr>
+								<td>Si</td>
+								<td>4 &plus;</td>
+								<td>1,5</td>
+								<td>24</td>
+							</tr>
+						</tbody>
+				</table>
+			</div>
+			<div id="vignette">
+				<div id="aide">
+					<iframe name="f_aide" id="fenetre" src="aide/demarrage.html" style="border: none" height="100%" width="100%"> </iframe>
+				</div>
+				<div id="commande">
+					<span class="close" onclick="pan_commande.ligne_commande.visibility.toggle();">&times;</span>
+					<form action="#" method="get" name="f_commande" style="margin: 0px; padding: 0px;" onsubmit="void(pan_commande.ligne_commande.executer(document.forms['f_commande'].ligne_commande.value)); return false;">
+						<input name="ligne_commande" id="ligne_commande" size="30">
+						<a class="bouton_ligne_commande" href="javascript: pan_commande.ligne_commande.undo()">&lt;</a><a class="bouton_ligne_commande" href="javascript: pan_commande.ligne_commande.redo()">&gt;</a>
+					</form>
+					<div id="messages"> </div>
+				</div>
+				<div id="reglages">
+					<span class="close" onclick="pan_commande.reglages.visibility.toggle();">&times;</span>
+					<hr style="clear: both; border:none;">
+					<fieldset>
+						<legend>
+							Qualité d'affichage
+						</legend>
+					Min <input id="qualite" type="range" value="6" step="1" max="8" min="0" onchange="pan_commande.reglages.setQuality(this.value)"> Max
+					</fieldset>
+					
+				</div>
+			</div>
+
+		</div>
+
+		<div id="galerie">
+			<a href="javascript: pan_commande.galerie.toggle();"><img src="images/fermer.gif" border="0" align="absmiddle"></a>
+			Galerie
+			<div id="thumbnails"> </div>
+			<a class="bouton" href="#" onclick="pan_commande.commandes.fond.run()">Fond <img src="images/fond.png" border="0"></a>
+
+			<a class="bouton" href="javascript: snapshot();">Clich&eacute; <img src="images/photo.gif" border="0"></a>
+			<a class="bouton" id="exporter" href="dossiers.htm" target="_blank" onclick="if (document.location.href.indexOf('http')!=0) document.getElementById('exporter').href='export.htm'">Exporter <img src="images/upimg.gif" border="0"></a>
+		</div>
+<script>
+	if (typeof (parametre.tableau) != "undefined") {
+		if ( (parametre.tableau==0) || (parametre.tableau=="false")) {
+			$('#tableau_elements').css('display','none');
+			$('#tableau_caracteristiques').css('display','block');
+			aideFormule="formule_notab.html";
+		}
+	}
+</script>		
+	</body>
+</html>

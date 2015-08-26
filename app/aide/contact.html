@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="fr">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+  <title>Contacts</title>
+  <link rel="stylesheet" href="style.css" type="text/css">
+  <style>
+  	img {
+  		float: left;
+  		margin-right: 0.5em;
+  	}
+  	ul {
+  		margin: 0.4em;
+  		list-style: none;
+  		padding: 0;
+  	}
+  	li {
+  		margin: 0.4em 0 0.4em 1em;
+  	}
+  </style>
+</head>
+<body>
+
+<h1>Visualisation des contacts entre molécules</h1>
+Ces commandes mettent en évidence les contacts établis entre une molécule de la maille centrale et les molécules voisines.<br />
+Les molécules voisines sont affichées en transparence de façon à mieux visualiser les zones de contact.<br />
+Trois modes de représentation sont proposés :
+<ul>
+	<li><img src="../images/contactvdw.png" /> <b>Surface de Van der Walls</b> : une surface est appliquée sur la molécule. La surface est colorée en fonction de la proximité
+		des molécules voisines (rouge : très proches ; bleu : lointaines)</li>
+	<li><img src="../images/contactfull.png" /><b>Zones de contact </b>: une lentille correspondant à l'intersection des sphères des atomes des molécules voisines avec la molécule étudiée. L'intensité du dégradé de couleurs est un indicateur de l'étroitesse du contact</li>
+	<li><img src="../images/contactconnect.png" /><b>Connexions</b> : un "cigare" matérialise la liaison entre les atomes. La section de cette connexion est proportionnelle à la proximité entre les atomes</li>	
+</ul>
+Les contacts correspondent à des interactions non covalentes entre molécules. Ils peuvent être dus à des liaisons hydrogène
+mais aussi à d'autres types d'interactions (hydrophobes, etc...).
+<br>
+
+
+</body>
+</html>

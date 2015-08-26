@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<title>Mode formule</title>
+		<link rel="stylesheet" href="style.css" type="text/css">
+	</head>
+	<body>
+
+		<h1>Mode formule</h1>
+		Ce module permet de calculer le nombre d'atomes de chaque type présent dans une maille et son pourcentage d'abondance en masse.
+		<br />
+		En effet, les atomes situés sur les bords d'une maille sont partagés avec les mailles voisines et
+		ne doivent donc pas être comptés comme ceux de l'intérieur de la maille :
+		<ul>
+			<li>
+				Sur une face, un atome est partagé entre 2 mailles
+			</li>
+			<li>
+				Sur une arrête, un atome est partagé entre 4 mailles
+			</li>
+			<li>
+				Sur un sommet, un atome est partagé entre 8 mailles
+			</li>
+		</ul>
+		En complétant le tableau du panneau mode formule, les éléments concernés s'affichent dans la fenêtre de visualisation.
+		Ils doivent être dénombrés et la valeur inscrite dans le tableau.<br />
+		La colonne "total" est actualisée au fur et à mesure des saisies en prenant en compte la position de l'atome (intérieur de la maille, face, etc...)
+		et la proportion de l'atome dans le site cristallographique. En effet, pour certains minéraux une même position peut être occupée
+		par des atomes de nature différente (par exemple substitution Silicium/Aluminium). Dans ce cas, le fichier utilisé indique la proportion
+		de ces atomes et ce coefficient est utilisé pour le calcul du nombre total d'atomes par maille.
+		<br>
+		<br>
+
+	</body>
+</html>
