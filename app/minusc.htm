@@ -7,37 +7,33 @@
 		<link href="css/styles.css" type="text/css" rel="stylesheet">
 
 		<link rel="shortcut icon" href="../favicon.ico">
-		<script type="text/javascript" src="jsmol/JSmol.min.js"></script>
+		<script src="jsmol/JSmol.min.js"></script>
 		<script src="scripts/atomes.js"></script>
 		<script src="scripts/fichiers.js"></script>
 		<script src="scripts/formule.js"></script>
+		<script src="scripts/init.js"></script>
 		<script type="text/javascript">
-			var nb_atomes = 270;
-			var initscript = "select all; color cpk; spacefill 20%; wireframe 0.15;";
-			var atoms = [{
-				'symbol' : 'Si',
-				'charge' : 4,
-				'occupancy' : 1
-			}, {
-				'symbol' : 'O',
-				'charge' : -2,
-				'occupancy' : 1
-			}];
-			var volume = 112.9;
-			var no_avogadro = 6.022 * Math.pow(10, 23);
-			var crystal_type = "ionic";
+			var nb_atomes = 270,
+			     initscript = "select all; color cpk; spacefill 20%; wireframe 0.15;",
+			     atoms = [{
+                        'symbol' : 'Si',
+                        'charge' : 4,
+                        'occupancy' : 1
+                    }, {
+                        'symbol' : 'O',
+                        'charge' : -2,
+                        'occupancy' : 1
+                    }],
+                volume = 112.9,
+                systeme = "Hexagonal",
+                no_avogadro = 6.022 * Math.pow(10, 23),
+                crystal_type = "ionic";
 
-			function charger_bdd(filename, scr) {
-				var file_strict_name = filename.substr(0, filename.lastIndexOf('.'));
-				var filename_spt = 'set echo bottom left;font echo 20 arial bold;color echo white; echo "' + file_strict_name + '"; ';
-				var initscript = ( typeof (scr) != 'undefined') ? initscript0 + scr : initscript0;
-				var spt = "load \"jmol/" + filename + "\" {5,5,5}; history on; " + filename_spt + initscript;
-				executer(spt);
-				initialiser();
-			}
-
+			
+            
+/*
 			states = new Array();
-			function snapshot_dossier() {
+            function snapshot_dossier() {
 				new Ajax.Request("www/snapshot.php", {
 					method : 'post',
 					parameters : {
@@ -102,16 +98,17 @@
 						}
 					});
 			}
-
-			function nettoieScript(spt) {
-				if (spt.indexOf("/*SPLIT*/") == -1) {
-					var pos = spt.indexOf("javascript");
-					var spt1 = spt.substring(0, pos - 1);
-					var spt2 = spt.substring(pos);
-					spt = spt1 + "/*SPLIT*/;" + spt2 + "; javascript initialiser()"
-				}
-				Jmol.script(minusc, spt)
-			}
+*/
+        
+		//	function nettoieScript(spt) {
+		//		if (spt.indexOf("/*SPLIT*/") == -1) {
+		//			var pos = spt.indexOf("javascript");
+		//			var spt1 = spt.substring(0, pos - 1);
+		//			var spt2 = spt.substring(pos);
+		//			spt = spt1 + "/*SPLIT*/;" + spt2 + "; javascript initialiser()"
+		//		}
+		//		Jmol.script(minusc, spt)
+		//	}
 
 			function etat_menu_mailles() {
 				var sel = [];
@@ -286,10 +283,6 @@
 				}
 			}
 
-			function retourMessages(applet, txt) {
-
-			}
-
 			function renvoyerMessages(applet, txt) {
 				if (txt.indexOf('Script completed') > -1) {
 					actualise_messages();
@@ -388,7 +381,7 @@
 				filename = "aide/" + filename;
 				frames['f_aide'].location.href = filename;
 			}
-
+/*
 			function undo() {
 				answer = Jmol.evaluate(minusc, "script('show history; history on;')");
 				listing = answer[0][0][3];
@@ -413,7 +406,7 @@
 				//console.log(spt);
 				executer(spt);
 			}
-
+*/
 			function analyse_message(txt) {
 				if (txt.indexOf('atoms selected') > 0) {
 					nb_atomes = parseInt(txt);
@@ -503,21 +496,15 @@
 				var initscript = filename_spt + initscript0 + f[1] + spt_spheres + "; crystal_type = '" + crystal_type + "'; javascript initialiser(); zoomto 0.6 {displayed} 100;";
 				//spt = "load \"jmol/" + f[0] + "\" {5,5,5}; history on; " + filename_spt + initscript + ";/*SPLIT*/;"
 				//Jmol.loadFile(minusc, "jmol/" + f[0], initscript);
-				console.log("load \"jmol/" + f[0]+"\" "+ initscript);
-				Jmol.script(minusc, "load \"jmol/" + f[0]+"\""+ initscript);
+				console.log("load \"cif/" + f[0]+"\" "+ initscript);
+				Jmol.script(minusc, "load \"cif/" + f[0]+"\""+ initscript);
 				
 				is_mode_formule = false;
 				//Jmol.script(minusc, "javascript initialiser()");
 				//initialiser();
 			}
 
-			function affiche_fichiers() {
-				document.open();
-				for (i in liste_fichiers) {
-					document.writeln('<a href="javascript: charger_fichier(\'' + i + '\')">' + i + '</a>');
-				}
-				document.close();
-			}
+			
 
 			function Imh() {
 				this.panneau = {
@@ -887,6 +874,33 @@
 						pan_commande.panneau.hide(panneaux[i]);
 				}
 			}
+            
+            function actualise_liste_fichiers(query) {
+                var listeFiltree = [],
+                    item = "",
+                    newLi = "";
+                
+                if (typeof(query)!=='undefined' && query!=="") {
+                    reg = new RegExp(query,'i');
+                    listeFiltree = liste_noms_mineraux.filter(function(val){
+                        return (val.search(reg)>=0);
+                    });   
+                } else {
+                    listeFiltree = liste_noms_mineraux;
+                }
+                $("#liste_fichiers").empty();
+                console.log(listeFiltree);
+                for (var i=0; i<listeFiltree.length; i++) {
+                    item = listeFiltree[i];
+                    newLi = $('<li>' + item + '</li>')
+                            .on('click',{"file":item},function(event){
+                                    charger_fichier(event.data.file);
+                                });
+                    
+                    $("#liste_fichiers").append(newLi);   
+                }
+                
+            }
 
 		</script>
 	</head>
@@ -894,63 +908,7 @@
 	<body class="texte">
 		<div id="visualisation">
 			<div id="applet">
-				<script type="text/javascript">
-					//document.getElementById("visualisation").style.width=coteApplet+"px";
-					//document.getElementById("visualisation").style.height=coteApplet+"px";
-					initscript0 = "restrict none; select all; color cpk; spacefill 20%; wireframe 0.15; color selectionHalos none;" + "unitcell {1 1 1} dotted; display cell={1 1 1}; " + "set selectionHalos off; set axes 3; zoom 200; set zshade on; set zshadepower 2; function flash {set selectionhalos on; delay 0.3; set selectionhalos off}";
-					//initscript = initscript0+"set echo bottom left;font echo 20 arial bold;color echo white; echo Quartz;";
-					parametre = (function() {
-						var p = {};
-
-						function majuscule(str) {
-							str = str.toLowerCase();
-							str = str[0].toUpperCase() + str.substring(1);
-							return str;
-						}
-
-						if ((document.location.search.indexOf("?") == 0) && (document.location.search.length > 1)) {
-							var a = decodeURI(document.location.search.substring(1));
-							if (a.indexOf("=") == -1) {
-								p.file = majuscule(a)
-							} else {
-
-								var tab = a.split("&")
-								for ( i = 0; i < tab.length; i++) {
-									if (tab[i].indexOf("=") == -1) {
-										
-										p.file = majuscule(tab[i]);
-										continue;
-									}
-									var paramItem = tab[i].split("=")
-									p[paramItem[0]] = paramItem[1];
-								}
-							}
-						}
-						return p;
-					})()
-					nomFichier = ((liste_fichiers[parametre.file]) ? parametre.file : "Quartz")
-					enlocal = ((document.location.href.indexOf('http') == 0)) ? '' : 'Signed';
-					var Info = {
-						addSelectionOptions : false,
-						color : "#000000",
-						debug : false,
-						defaultModel : "",
-						height : '100%',
-						isSigned : (enlocal == 'Signed'),
-						jarFile : "JmolApplet" + enlocal + "0.jar",
-						jarPath : "jsmol/java",
-						j2sPath : "jsmol/j2s",
-						memoryLimit : 512,
-						readyFunction : null,
-						script : "set messagecallback 'renvoyerMessages';set pickcallback 'messagesClics'; set perspectiveDepth off; javascript charger_fichier('" + nomFichier + "');",
-						src : null,
-						use : "HTML5 Java noWebGL noImage",
-						width : '100%'
-					};
-
-					minusc = Jmol.getApplet("minusc", Info);
-
-				</script>
+				
 			</div>
 			<div id="legende">
 				<div id="busy" style="background: #000;"><img id="busy-icon" src="images/noir.gif" height="16" width="16">
@@ -1113,15 +1071,16 @@
 				</div>
 
 			</div>
-
+            
+<!--******************************** Onglet Fichier ***************************** -->
 			<div id="fichier">
-				<div id="liste_fichiers">
-					<script>
-						affiche_fichiers()
-					</script>
-				</div>
+                <input type="search" id="recherche_fichiers" placeholder="Rechercher" />
+				<ul id="liste_fichiers">
+					
+				</ul>
 			</div>
-
+            
+<!--******************************** Onglet Formule ***************************** -->
 			<div id="formule">
 				<fieldset id="panneau_controle_formule">
 					<legend>
@@ -1249,7 +1208,7 @@
 			</div>
 
 		</div>
-
+<!--
 		<div id="galerie">
 			<a href="javascript: pan_commande.galerie.toggle();"><img src="images/fermer.gif" border="0" align="absmiddle"></a>
 			Galerie
@@ -1259,14 +1218,10 @@
 			<a class="bouton" href="javascript: snapshot();">Clich&eacute; <img src="images/photo.gif" border="0"></a>
 			<a class="bouton" id="exporter" href="dossiers.htm" target="_blank" onclick="if (document.location.href.indexOf('http')!=0) document.getElementById('exporter').href='export.htm'">Exporter <img src="images/upimg.gif" border="0"></a>
 		</div>
+-->
 <script>
-	if (typeof (parametre.tableau) != "undefined") {
-		if ( (parametre.tableau==0) || (parametre.tableau=="false")) {
-			$('#tableau_elements').css('display','none');
-			$('#tableau_caracteristiques').css('display','block');
-			aideFormule="formule_notab.html";
-		}
-	}
+	
+    
 </script>		
 	</body>
 </html>

@@ -2,6 +2,8 @@
  * @author Paul Pillot
  * Liste des fichiers de modèles minéraux
  * affichés dans le menu fichier
+ * syntaxe :
+ * 'Nom_fichier' dans le répertoire cif
  */
 liste_fichiers = {
 	'Actinote' : ['actinote-9001932.cif','connect (*) delete; connect 1.0 3.0 (silicon, calcium, iron) (oxygen); connect 0.1 1.0 (hydrogen) (oxygen) '],
@@ -58,6 +60,14 @@ liste_fichiers = {
 	'Wollastonite' : ['wollastonite.cif','connect (calcium) (*) delete'],
 	'ZnS Blende' : ['sphalerite-9000107','']
 };
+liste_noms_mineraux = (function(tF){
+    var t = [];
+    for (i in tF) {
+        t.push(i);
+    }
+    return t;
+})(liste_fichiers);
+
 classification_fichiers = {
 	
 }

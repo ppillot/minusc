@@ -187,10 +187,11 @@ a.bouton_ligne_commande:hover {
 	position: relative;
 	margin: 3px;
 	height: 300px;
-	width: 240px;
 	background-color: #fff;
 	overflow: auto;
 	font-size: 8pt;
+    list-style-type: none;
+    padding-left: 0;
 }
 .close {
 	float:right;
@@ -259,16 +260,16 @@ a.bouton_ligne_commande:hover {
 .onglet a:hover {
 	color: #336;
 }
-#liste_fichiers a {
-	display: block;
-	font-size: 10pt;
+#liste_fichiers li {
+	font-size: 11pt;
 	border: 1px solid #fff;
 	text-decoration: none;
-	color: #000;
+	color: #444;
+    padding: 0.5em 0.5em 0.5em 0.8em;
 }
-#liste_fichiers a:hover {
+#liste_fichiers li:hover {
 	border: 1px solid #ccc;
-	background: #EEEEFF;
+	background: #EEE;
 }
 
 #formule tr, td {
