@@ -76,7 +76,7 @@ $(document).ready(function() {
             "keyup" : function(){
                             actualise_liste_fichiers( $( this ).val() );
                         },
-            "change" : function () {
+            "search" : function () {
                             actualise_liste_fichiers( $( this ).val() );
                         }
             });

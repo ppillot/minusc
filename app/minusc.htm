@@ -488,16 +488,17 @@
 			}
 
 			function charger_fichier(mineral) {
-				var filename_spt = ' {3,3,3}; history on; set echo bottom left;font echo 20 arial bold; color echo steelblue; echo "' + mineral + '"; ';
-				var f = liste_fichiers[mineral]
-				crystal_type = (f[2] || "ionic");
-				var spt_spheres = ((crystal_type == "metal") || (crystal_type == "ionic")) ? "; function sphere(){cpk ionic}; " : "function sphere(){cpk} ;";
-
-				var initscript = filename_spt + initscript0 + f[1] + spt_spheres + "; crystal_type = '" + crystal_type + "'; javascript initialiser(); zoomto 0.6 {displayed} 100;";
+				var filename_spt = ' {3,3,3}; history on; set echo bottom left;font echo 20 arial bold; color echo steelblue; echo "' + mineral + '"; ',
+				    f = liste_fichiers[mineral],
+				    crystal_type = (f.hasOwnProperty('type'))? f.type : "ionic",
+				    spt_spheres = ((crystal_type == "metal") || (crystal_type == "ionic")) ? "; function sphere(){cpk ionic}; " : "function sphere(){cpk} ;",
+                    connect_script = (f.hasOwnProperty('script'))? f.script : '',
+				    initscript = filename_spt + initscript0 + connect_script + spt_spheres + "; crystal_type = '" + crystal_type + "'; javascript initialiser(); zoomto 0.6 {displayed} 100;";
 				//spt = "load \"jmol/" + f[0] + "\" {5,5,5}; history on; " + filename_spt + initscript + ";/*SPLIT*/;"
 				//Jmol.loadFile(minusc, "jmol/" + f[0], initscript);
-				console.log("load \"cif/" + f[0]+"\" "+ initscript);
-				Jmol.script(minusc, "load \"cif/" + f[0]+"\""+ initscript);
+				//console.log("load \"cif/" + f.file + "\" " + initscript);
+				
+                Jmol.script(minusc, "load \"cif/" + f.file + "\"" + initscript);
 				
 				is_mode_formule = false;
 				//Jmol.script(minusc, "javascript initialiser()");
@@ -888,8 +889,9 @@
                 } else {
                     listeFiltree = liste_noms_mineraux;
                 }
+                
                 $("#liste_fichiers").empty();
-                console.log(listeFiltree);
+                
                 for (var i=0; i<listeFiltree.length; i++) {
                     item = listeFiltree[i];
                     newLi = $('<li>' + item + '</li>')

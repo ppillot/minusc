@@ -182,17 +182,7 @@ a.bouton_ligne_commande:hover {
 #fichier, #formule {
 	margin-left: -2000px;
 }
-#liste_fichiers {
-	border: 1px solid #CCCCCC;
-	position: relative;
-	margin: 3px;
-	height: 300px;
-	background-color: #fff;
-	overflow: auto;
-	font-size: 8pt;
-    list-style-type: none;
-    padding-left: 0;
-}
+
 .close {
 	float:right;
 	margin: 0 2px 0 0;
@@ -260,6 +250,19 @@ a.bouton_ligne_commande:hover {
 .onglet a:hover {
 	color: #336;
 }
+
+
+#liste_fichiers {
+	border: 1px solid #CCCCCC;
+	position: relative;
+	margin: 3px;
+	height: 300px;
+	background-color: #fff;
+	overflow: auto;
+	font-size: 8pt;
+    list-style-type: none;
+    padding-left: 0;
+}
 #liste_fichiers li {
 	font-size: 11pt;
 	border: 1px solid #fff;
@@ -271,6 +274,12 @@ a.bouton_ligne_commande:hover {
 	border: 1px solid #ccc;
 	background: #EEE;
 }
+#recherche_fichiers {
+    border : 1px solid #ccc;
+    font-size: 1em;
+    margin: 0.2em;
+}
+
 
 #formule tr, td {
 	border: solid 1px lightgrey;
@@ -310,6 +319,10 @@ a.bouton_ligne_commande:hover {
 	padding: 0px;
 	width: 30px;
 }
+
+
+
+
 #thumbnails {
 	overflow: auto;
 	height: 150px;
