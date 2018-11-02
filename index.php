@@ -127,13 +127,12 @@ D&eacute;marrer MinUSc</a><br>
 Option : <a href="app/minusc.htm?tableau=0">Démarrer MinUSc sans le calcul automatique de la formule</a>
 <br/>
 <br>
-Version : 1.6 - Novembre 2014 - <a href="http://www.librairiedemolecules.education.fr/aide.php?sujet=minusc">Documentation</a> 
+Version : 1.7 - Novembre 2018 - <a href="http://www.librairiedemolecules.education.fr/aide.php?sujet=minusc">Documentation</a> 
 <br>
-<a href="http://www.librairiedemolecules.education.fr/outils/minusc/minusc.zip" class="download">Téléchargement</a><br>
 
 
-Auteur : <a href="mailto:paul.pillot.a.cimf.ca">Paul
-Pillot</a> - Collège International Marie de France, Montréal<br>
+Auteur : <a href="mailto:paul.pillot.a.libmol.org">Paul
+Pillot</a> - Montréal<br>
 
 </div>
 <br>

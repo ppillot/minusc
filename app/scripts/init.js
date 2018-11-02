@@ -50,14 +50,11 @@ $(document).ready(function() {
         debug : false,
         defaultModel : "",
         height : '100%',
-        isSigned : (enlocal == 'Signed'),
-        jarFile : "JmolApplet" + enlocal + "0.jar",
-        jarPath : "jsmol/java",
-        j2sPath : "jsmol/j2s",
+        j2sPath : "j/j2s",
         memoryLimit : 512,
         readyFunction : null,
         script : "set messagecallback 'renvoyerMessages';set pickcallback 'messagesClics'; set perspectiveDepth off; javascript charger_fichier('" + nomFichier + "');",
-        src : null,
+        src : "cif/sio2.cif",
         use : "HTML5 Java noWebGL noImage",
         width : '100%'
     };
