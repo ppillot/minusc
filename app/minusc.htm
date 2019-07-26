@@ -431,7 +431,7 @@
             var filename_spt = ' {3,3,3}; history on; set echo bottom left;font echo 20 arial bold; color echo steelblue; echo "' + mineral + '"; ',
                 f = liste_fichiers[mineral],
                 crystal_type = (f.hasOwnProperty('type')) ? f.type : "ionic",
-                spt_spheres = ((crystal_type == "metal") || (crystal_type == "ionic")) ? "; function sphere(){cpk ionic}; " : "function sphere(){cpk} ;",
+                spt_spheres = ((crystal_type == "metal") || (crystal_type == "ionic")) ? "; function sphere(){cpk ionic}; function sphere25(){cpk ionic 25%};" : "; function sphere(){cpk} ; function sphere25(){cpk 25%};",
                 connect_script = (f.hasOwnProperty('script')) ? f.script : '',
                 initscript = filename_spt + initscript0 + connect_script + spt_spheres + "; crystal_type = '" + crystal_type + "'; javascript initialiser(); zoomto 0.6 {displayed} 100;";
             //spt = "load \"jmol/" + f[0] + "\" {5,5,5}; history on; " + filename_spt + initscript + ";/*SPLIT*/;"
