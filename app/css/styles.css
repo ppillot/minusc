@@ -268,7 +268,8 @@ a.bouton_ligne_commande:hover {
 	border: 1px solid #fff;
 	text-decoration: none;
 	color: #444;
-    padding: 0.5em 0.5em 0.5em 0.8em;
+	padding: 0.5em 0.5em 0.5em 0.8em;
+	cursor: pointer;
 }
 #liste_fichiers li:hover {
 	border: 1px solid #ccc;
