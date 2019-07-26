@@ -136,6 +136,12 @@ var liste_fichiers = {
             aliases: ['amphibole'],
             'script': 'connect (*) delete; connect 1.0 3.0 (silicon,magnesium,iron,aluminium) (oxygen); connect 0.2 1.5 (hydrogen) (oxygen)'
         },
+        'Hydroxyapatite': {
+            'file': 'hydroxyapatite-9002213.cif',
+            aliases: ['hydroxylapatite', 'émail'],
+            'script': 'connect (oxygen) (oxygen) delete; connect (hydrogen) (hydrogen) delete',
+            type: 'molecular'
+        },
         'Illite': {
             'file': 'illite.cif',
             aliases: ['argile'],
@@ -170,6 +176,15 @@ var liste_fichiers = {
             'file': 'orthose.cif',
             aliases: ['feldspath'],
             'script': 'connect (*) delete; connect 1.0 3.0 (silicon, aluminium) (oxygen)'
+        },
+        'Oxalate': {
+            'file': 'whewellite-2300210.cif',
+            aliases: ['whewellite'],
+            type: 'molecular'
+        },
+        'Permanganate de Potassium': {
+            file: 'permanganate-potassium-1521179.cif',
+            aliases: ['KMnO4']
         },
         'Perovskite-Bridgmanite': {
             'file': 'perovskite-9004008.cif',
@@ -210,6 +225,11 @@ var liste_fichiers = {
         'Staurotide': {
             'file': 'staurolite-9005341.cif',
             'script': 'connect (*) delete; connect 1.0 3.0 (silicon, aluminum) (oxygen)'
+        },
+        'Sulfate de cuivre' : {
+            file: 'cuso4-2310620.cif',
+            script: 'connect (*) delete; connect 1.0 3.0 (_S, _Cu) (oxygen)',
+            aliases: ['CuSO4', 'chalcocyanite']
         },
         'Sylvite': {
             'file': 'sylvite.cif',
