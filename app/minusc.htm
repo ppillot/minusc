@@ -239,18 +239,47 @@
 
             extraction_info_maille();
 
-            var infos = Jmol.evaluate(minusc, "{*}.find('MF').split(' ').find('[a-zA-Z]+','m').join(',')")
-                //console.log(infos)
-            if (infos) {
-                var tab_infos = infos.split(','),
-                    spt = "'['+";
+            var elements = Jmol.evaluateVar(minusc, '{unitcell}.element');
+            elements = elements.reduce((acc, el) => {
+                if (acc.indexOf(el) === -1) acc.push(el);
+                    return acc;
+            }, []);
 
-                for (var i = 0, l = tab_infos.length; i < l; i++) {
-                    spt += "'{\"charge\":'+{_" + tab_infos[i] + "}[0].charge+',\"occupancy\":'+{_" + tab_infos[i] + "}.occupancy+',\"ionic\":'+{_" + tab_infos[i] + "}[0].ionic+',\"symbol\":\"'+{_" + tab_infos[i] + "}[0].symbol+'\"},'+";
+            if (crystal_type === 'metal' && elements.reduce(function (acc, el) {
+                return acc && metallic_radius[el] !== undefined
+            }, true)) {
+                var spt_spheres = '';
+                    if (elements.length === 1) {
+                        var r = metallic_radius[elements[0]];
+                        spt_spheres += '; function sphere(){cpk ' + r +'} function sphere25(){cpk ' + r *0.25 + '}';
+                    } else {
+                        spts_parts = elements.reduce((acc, el) => {
+                            var r = metallic_radius[el];
+                            return [
+                                acc[0] + 'select pre and _' + el + '; cpk ' + r + '; ',
+                                acc[1] + 'select pre and _' + el + '; cpk ' + r * 0.25 + '; '
+                            ];
+                        }, ['', '']);
+                        spt_spheres += '; function sphere(){ define pre;' + spts_parts[0] +' select pre} function sphere25(){ define pre;' + spts_parts[1] +' select pre}';
+                    }
+                    Jmol.script(minusc, spt_spheres);
+            }
+
+            if (elements) {
+                var spt = "'['+";
+
+                for (var i = 0, l = elements.length; i < l; i++) {
+                    spt += "'{\"charge\":'+{_" + elements[i] + "}[0].charge+',\"occupancy\":'+{_" + elements[i] + "}.occupancy+',\"ionic\":'+{_" + elements[i] + "}[0].ionic+',\"symbol\":\"'+{_" + elements[i] + "}[0].symbol+'\"},'+";
                 }
                 var r = Jmol.evaluate(minusc, spt.slice(0, -3) + "'+']'");
 
                 atoms = JSON.parse(r);
+
+                if (crystal_type === 'metal') {
+                    atoms.forEach(function (atom) {
+                        if (metallic_radius[atom.symbol]) atom.ionic = metallic_radius[atom.symbol];
+                    })
+                }
                 //console.log(atoms);
 
                 //atoms = new Array();
@@ -430,9 +459,23 @@
         function charger_fichier(mineral) {
             var filename_spt = ' {3,3,3}; history on; set echo bottom left;font echo 20 arial bold; color echo steelblue; echo "' + mineral + '"; ',
                 f = liste_fichiers[mineral],
-                crystal_type = (f.hasOwnProperty('type')) ? f.type : "ionic",
-                spt_spheres = ((crystal_type == "metal") || (crystal_type == "ionic")) ? "; function sphere(){cpk ionic}; function sphere25(){cpk ionic 25%};" : "; function sphere(){cpk} ; function sphere25(){cpk 25%};",
-                connect_script = (f.hasOwnProperty('script')) ? f.script : '',
+                spt_spheres = '',
+                connect_script = (f.hasOwnProperty('script')) ? f.script : '';
+
+            crystal_type = (f.hasOwnProperty('type')) ? f.type : "ionic";
+
+
+            switch (crystal_type) {
+                case 'metal':
+                case 'ionic':
+                    spt_spheres = "; function sphere(){cpk ionic}; function sphere25(){cpk 25%};";
+                    break;
+
+                case 'molecular':
+                default:
+                    spt_spheres = "; function sphere(){cpk} ; function sphere25(){cpk 25%};";
+                    break;
+            }
                 initscript = filename_spt + initscript0 + connect_script + spt_spheres + "; crystal_type = '" + crystal_type + "'; javascript initialiser(); zoomto 0.6 {displayed} 100;";
             //spt = "load \"jmol/" + f[0] + "\" {5,5,5}; history on; " + filename_spt + initscript + ";/*SPLIT*/;"
 
