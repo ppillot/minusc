@@ -2,17 +2,20 @@
   <div class="sidebar">
     <h1>MinUSc</h1>
     <controls />
+    <help />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import Controls from './Controls.vue'
+import Help from './Help.vue'
 
 export default Vue.extend({
   name: 'Sidebar',
   components: {
-    Controls
+    Controls,
+    Help
   }
 })
 </script>
