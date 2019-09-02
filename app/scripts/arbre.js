@@ -32,7 +32,7 @@ function tree() {
         nivouv[nivouv.length] = nom_dossier;
       } else if (niv==nivprec) {
         nivouv[niv] = nom_dossier;
-      } else if (niv<nivprec) {  //on ferme le/les dossiers précédents
+      } else if (niv<nivprec) {  //on ferme le/les dossiers prï¿½cï¿½dents
         nivouv.length=niv+1;
         nivouv[niv] = nom_dossier;
       }
