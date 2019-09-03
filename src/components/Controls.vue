@@ -1,14 +1,14 @@
 <template>
   <div class="controls">
-      <ul class="tabs">
-          <li data-tab="files">Fichiers</li>
-          <li data-tab="commands" class="active">Commandes</li>
-          <li data-tab="formula">Formule</li>
+      <ul class="tabs" @click="activate">
+          <li data-tab="files" :class="{ active: activeTab == 'files'}">Fichiers</li>
+          <li data-tab="commands" :class="{ active: activeTab == 'commands'}">Commandes</li>
+          <li data-tab="formula"  :class="{ active: activeTab == 'formula'}">Formule</li>
       </ul>
       <div class="tab__content">
-          <div>Fichiers</div>
-          <div>Commandes</div>
-          <div>Formule</div>
+          <div :class="{ active: activeTab == 'files'}">Fichiers</div>
+          <div :class="{ active: activeTab == 'commands'}">Commandes</div>
+          <div :class="{ active: activeTab == 'formula'}">Formule</div>
       </div>
   </div>
 </template>
@@ -17,14 +17,26 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  name: 'Controls'
+  name: 'Controls',
+  data () {
+    return {
+      activeTab: 'commands'
+    }
+  },
+  methods: {
+    activate: function (ev: MouseEvent) {
+      const tabType = (ev.target as HTMLElement).dataset.tab
+      console.log(tabType)
+      if (!tabType) return
+      this.activeTab = tabType
+    }
+  }
 })
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .controls {
-  background: white;
   flex: 1 1;
   display: flex;
   flex-direction: column;
@@ -43,6 +55,8 @@ ul.tabs {
         border-style: solid;
         margin: 0 0 -1px 0.4rem;
         border-radius: 3px 3px 0 0;
+        background: white;
+        cursor: pointer;
         &.active {
           border-bottom-color: white;
         }
@@ -52,5 +66,11 @@ ul.tabs {
     flex: 1 1;
     background: white;
     padding: 0.4rem;
+    &> div {
+      display: none;
+      &.active {
+        display: flex;
+      }
+    }
 }
 </style>
