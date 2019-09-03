@@ -20,5 +20,8 @@ export default Vue.extend({
 #jsmol-viewport {
   height: 100%;
   width: 100%;
+  border: 0;
+  margin: 0;
+  padding: 0;
 }
 </style>

@@ -3,9 +3,29 @@
 
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <!--<script src="j/JSmol.min.js"></script>-->
+    <script src="jsmol/JSmol.min.js"></script>
+    <style>
+        html, body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
 </head>
 <body >
-Hi
+    <script>
+    var Info = {
+        color: "#FFFFFF",
+        height: '100%',
+        width: '100%',
+        script: "load $caffeine",
+        use: "HTML5",
+        j2sPath: "jsmol/j2s",
+        disableInitialConsole: true
+    };
+
+    Jmol.getApplet("myJmol", Info);
+    </script>
 </body>
 </html>
