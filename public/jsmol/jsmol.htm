@@ -13,19 +13,76 @@
         }
     </style>
 </head>
-<body >
-    <script>
-    var Info = {
-        color: "#FFFFFF",
-        height: '100%',
-        width: '100%',
-        script: "load $caffeine",
-        use: "HTML5",
-        j2sPath: "jsmol/j2s",
-        disableInitialConsole: true
-    };
+<script>
+/// <reference path="../../src/jmol.d.ts" />
+        window.addEventListener('message', ev => {
+            console.log(JSON.parse(JSON.stringify(ev.data)));
+            // if (ev.origin !== document.location.host) return;
+            handle(ev.data);
+        })
 
-    Jmol.getApplet("myJmol", Info);
+        function handle(data) {
+            switch (data.type) {
+                case 'initApplet':
+                    Jmol.setDocument(0);
+                    console.log('hi')
+                    var myApplet =  Jmol.getApplet('myApplet', data.payload);
+                    console.log(Jmol.getAppletHtml(myApplet))
+                    $('body').append(Jmol.getAppletHtml(myApplet));
+                    // Jmol.script('javascript alert')
+                    //setJmol();
+                    break;
+            }
+        }
+        // var Info = {
+        //     color: "#FFFFFF",
+        //     height: '100%',
+        //     width: '100%',
+        //     script: "load $caffeine",
+        //     readyFunction: function () { window.parent.postMessage('JSmol ready') },
+        //     use: "HTML5",
+        //     j2sPath: "jsmol/j2s",
+        //     disableInitialConsole: true
+        // };
+
+        // myApplet = Jmol.getApplet('myApplet', Info)
+
+        // function script (spt) {
+        //     Jmol.script(myApplet, spt);
+        // }
+
+
+        </script>
+<body >
+<script>
+    // $(document).ready(function($) {
+    //     var Info = {
+    //         color: "#FFFFFF",
+    //         height: '100%',
+    //         width: '100%',
+    //         script: "load $caffeine",
+    //         //readyFunction: function () { window.parent.postMessage('JSmol ready') },
+    //         use: "HTML5",
+    //         j2sPath: "jsmol/j2s",
+    //         disableInitialConsole: true
+    //     };
+    //     Jmol.setDocument(0)
+    //     myApplet = Jmol.getApplet('myApplet', Info)
+    //     $('#test').html(Jmol.getAppletHtml(myApplet));
+    // }
+
+
+    // )
+
+
+        //setJmol();
+
+
+        function script (spt) {
+            Jmol.script(myApplet, spt);
+        }
+
+
     </script>
 </body>
 </html>
