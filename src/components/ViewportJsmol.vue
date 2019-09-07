@@ -1,14 +1,19 @@
 <template>
-  <div class="jsmol">
-    <iframe src="jsmol/jsmol.htm" id="jsmol-viewport"></iframe>
-  </div>
+  <div class="jsmol"></div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import JmolWrapper from '../utils/jmol.wrapper'
 
 export default Vue.extend({
-  name: 'ViewportJsmol'
+  name: 'ViewportJsmol',
+  mounted () {
+    // @ts-ignore
+    const jmolObj = new JmolWrapper(this.$el, {
+      color: '#263238'
+    })
+  }
 })
 </script>
 
@@ -17,11 +22,5 @@ export default Vue.extend({
     background: #888;
     flex: 1 1;
 }
-#jsmol-viewport {
-  height: 100%;
-  width: 100%;
-  border: 0;
-  margin: 0;
-  padding: 0;
-}
+
 </style>
