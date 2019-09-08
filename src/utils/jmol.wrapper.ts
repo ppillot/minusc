@@ -74,8 +74,9 @@ class JmolWrapper {
         })
     }
 
-    public script (token: string) {
-
+    public script (spt: string) {
+        // @ts-ignore
+        this.win.Jmol.script(this.win.myApplet, spt)
     }
 
     private receiveMessage (ev: MessageEvent) {
