@@ -27,7 +27,7 @@ class JmolWrapper {
     doc : Document
     win : Window
     // param: Partial<jmol.AppletParameters>
-    constructor (el: HTMLElement, param?: Partial<jmol.AppletParameters>) {
+    constructor (el: Element, param?: Partial<jmol.AppletParameters>) {
         this.iFrame = document.createElement('iframe')
         this.iFrame.setAttribute('height', '100%')
         this.iFrame.setAttribute('width', '100%')

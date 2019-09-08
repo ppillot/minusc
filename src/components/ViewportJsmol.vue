@@ -6,11 +6,12 @@
 import Vue from 'vue'
 import JmolWrapper from '../utils/jmol.wrapper'
 
+let jmolObj: JmolWrapper
+
 export default Vue.extend({
   name: 'ViewportJsmol',
   mounted () {
-    // @ts-ignore
-    const jmolObj = new JmolWrapper(this.$el, {
+    jmolObj = new JmolWrapper(this.$el, {
       color: '#263238'
     })
   }
