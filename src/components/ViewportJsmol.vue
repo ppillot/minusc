@@ -28,7 +28,15 @@ export default Vue.extend({
     'showCharges']),
   watch: {
     fileName (curr: string, prev) {
-      jmolObj.script(`load ../cif/${curr} {1 1 1}`)
+      jmolObj.script(`load ../cif/${curr} {3 3 3};
+      restrict none;
+      select all; color cpk; spacefill 20%; wireframe 0.15;
+      color selectionHalos none;
+      unitcell {1 1 1} dotted; display cell={1 1 1};
+      set selectionHalos off;
+      set axes 3;
+      zoom 200;
+      set zshade on; set zshadepower 2;`)
     },
     atomDisplay (curr: AtomDisplay) {
       let spt = ''
