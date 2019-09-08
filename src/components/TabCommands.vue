@@ -1,17 +1,20 @@
 <template>
   <div class="container">
     <commands-atom />
+    <commands-bond />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import CommandsAtom from './Commands.Atom.vue'
+import CommandsBond from './Commands.Bond.vue'
 
 export default Vue.extend({
   name: 'TabCommands',
   components: {
-    CommandsAtom
+    CommandsAtom,
+    CommandsBond
   },
   data () {
     return {
