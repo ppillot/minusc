@@ -4,6 +4,7 @@ import Mutations from './mutations'
 import { AtomDisplay,
   HBondDisplay,
   BondDisplay,
+  PolyhedraDisplay
 } from './utils/types'
 
 Vue.use(Vuex)
@@ -14,7 +15,8 @@ export default new Vuex.Store({
     solidType: 'ionic',
     atomDisplay: 'bs',
     bondDisplay: 'stick',
-    hbondDisplay: 'off'
+    hbondDisplay: 'off',
+    polyhedraDisplay: 'none'
   },
   mutations: {
     [Mutations.CHANGE_FILE]: function (state, fileName: string) {
@@ -31,8 +33,10 @@ export default new Vuex.Store({
     },
     [Mutations.HBOND_DISPLAYED]: function (state, style: HBondDisplay) {
       state.hbondDisplay = style
+    },
+    [Mutations.POLYHEDRA_DISPLAYED]: function (state, style: PolyhedraDisplay) {
+      state.polyhedraDisplay = style
     }
-
   },
   actions: {
 

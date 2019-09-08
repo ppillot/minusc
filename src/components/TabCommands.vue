@@ -2,6 +2,7 @@
   <div class="container">
     <commands-atom />
     <commands-bond />
+    <commands-polyedra v-if="solidType !== 'molecular'"/>
   </div>
 </template>
 
@@ -9,18 +10,22 @@
 import Vue from 'vue'
 import CommandsAtom from './Commands.Atom.vue'
 import CommandsBond from './Commands.Bond.vue'
+import CommandsPolyedra from './Commands.Polyedra.vue'
+import { mapState } from 'vuex'
 
 export default Vue.extend({
   name: 'TabCommands',
   components: {
     CommandsAtom,
-    CommandsBond
+    CommandsBond,
+    CommandsPolyedra
   },
   data () {
     return {
     }
   },
   computed: {
+    ...mapState(['solidType'])
 
   },
   methods: {
