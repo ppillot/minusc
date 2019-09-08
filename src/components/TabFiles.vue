@@ -1,9 +1,14 @@
 <template>
-  <ul class="list">
-      <li v-for="file in fileList" :key='file.name' @click="loadFile(file.id)">
-          {{ file.name }}
-      </li>
-  </ul>
+  <div class="container">
+    <div class="filter__container">
+      <input type="text" v-model="filter">
+    </div>
+    <ul class="list">
+        <li v-for="file in filteredFileList" :key='file.name' @click="loadFile(file.id)">
+            {{ file.name }}
+        </li>
+    </ul>
+  </div>
 </template>
 
 <script lang="ts">
@@ -14,10 +19,19 @@ export default Vue.extend({
   name: 'TabFiles',
   data () {
     return {
-      files: Files
+      files: Files,
+      filter: ''
     }
   },
   computed: {
+    filteredFileList: function () {
+      if (this.filter === '') {
+        return this.fileList
+      }
+      return this.fileList.filter(({ name }) => {
+        return name.toLowerCase().indexOf(this.filter.toLowerCase()) > -1
+      })
+    },
     fileList: function () {
       const list: { name: string, id: number }[] = []
       Files.forEach((mFile, i) => {
@@ -49,41 +63,22 @@ export default Vue.extend({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-.controls {
+.container {
   flex: 1 1;
-  display: flex;
-  flex-direction: column;
 }
-ul.tabs {
-    flex: 0 0;
-    margin: 0;
-    list-style: none;
-    padding: 0;
-    border-bottom: 1px solid #90a4ae;
-    li {
-        display: inline-block;
-        padding: 0.2rem 0.5rem;
-        border-width: 1px;
-        border-color: #90A4AE;
-        border-style: solid;
-        margin: 0 0 -1px 0.4rem;
-        border-radius: 3px 3px 0 0;
-        background: white;
-        cursor: pointer;
-        &.active {
-          border-bottom-color: white;
-        }
+.list {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  border: 1px solid #ECEFF1;
+  li {
+    padding: 0.4rem 0.4rem;
+    cursor: pointer;
+    border-bottom: 1px solid #ECEFF1;
+    &:hover {
+      background: rgb(241, 245, 247);
+      color: #01579b;
     }
-}
-.tab__content {
-    flex: 1 1;
-    background: white;
-    padding: 0.4rem;
-    &> div {
-      display: none;
-      &.active {
-        display: flex;
-      }
-    }
+  }
 }
 </style>
