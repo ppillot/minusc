@@ -20,12 +20,13 @@ interface JmolMessage {
 
 interface iFrameWindow extends Window {
     Jmol: JmolStatic
+    myApplet: jmol.JmolApplet
 }
 
 class JmolWrapper {
     iFrame: HTMLIFrameElement
     doc : Document
-    win : Window
+    win : iFrameWindow
     // param: Partial<jmol.AppletParameters>
     constructor (el: Element, param?: Partial<jmol.AppletParameters>) {
         this.iFrame = document.createElement('iframe')
@@ -36,7 +37,7 @@ class JmolWrapper {
         el.append(this.iFrame);
 
         this.doc = this.iFrame.contentDocument!
-        this.win = this.iFrame.contentWindow!
+        this.win = this.iFrame.contentWindow as unknown as iFrameWindow
 
         const defaultParam: Partial<jmol.AppletParameters> = {
             color: "#263238",
@@ -68,14 +69,14 @@ class JmolWrapper {
     }
 
     public getValue (token: string) {
-        this.sendCommand( {
-            type: JmolCommand.EVALUATE,
-            payload: token
-        })
+        return this.win.Jmol.evaluateVar(this.win.myApplet, token)
+        // this.sendCommand( {
+        //     type: JmolCommand.EVALUATE,
+        //     payload: token
+        // })
     }
 
     public script (spt: string) {
-        // @ts-ignore
         this.win.Jmol.script(this.win.myApplet, spt)
     }
 
