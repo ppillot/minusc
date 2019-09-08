@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="command__button__set">
     <fieldset>
         <legend>
             Afficher atomes
@@ -40,23 +40,27 @@ export default Vue.extend({
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
-.button {
-    display: inline-block;
-    font-size: 11px;
-    cursor: pointer;
-    text-align: center;
-    margin-right: 10px;
-    img {
-        height: 40px;
-        width: 40px;
-        border: none;
-        border-radius: 3px;
-        box-shadow: 1px 1px 3px #aaa;
+<style lang="scss">
+.command__button__set {
+    fieldset {
+        border: 1px solid #CFD8DC;
+        border-radius: 2px;
+        padding: 0 0.7rem;
+        font-size: 0.9rem;
     }
-}
-fieldset {
-    border: 1px solid #CFD8DC;
-    border-radius: 2px;
+    .button {
+        display: inline-block;
+        font-size: 11px;
+        cursor: pointer;
+        text-align: center;
+        margin-right: 10px;
+        img {
+            height: 40px;
+            width: 40px;
+            border: none;
+            border-radius: 3px;
+            box-shadow: 1px 1px 3px #aaa;
+        }
+    }
 }
 </style>
