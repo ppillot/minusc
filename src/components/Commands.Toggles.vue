@@ -14,7 +14,6 @@
         </div>
         <div class="button" @click="toggleScripts">
             <img src="img/form_text.gif" />
-            <br> Entrer
             <br> Scripts
         </div>
         <div class="button" @click="toggleBgColor">
