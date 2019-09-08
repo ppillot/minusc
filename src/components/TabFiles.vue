@@ -1,6 +1,6 @@
 <template>
   <ul class="list">
-      <li v-for="file in fileList" :key='file.name'>
+      <li v-for="file in fileList" :key='file.name' @click="loadFile(file.id)">
           {{ file.name }}
       </li>
   </ul>
@@ -36,6 +36,12 @@ export default Vue.extend({
       })
       list.sort((a, b) => a.name.localeCompare(b.name))
       return list
+    }
+  },
+  methods: {
+    loadFile: function (id: number) {
+      const fileName = Files[id].file
+      this.$store.commit('changeFile', fileName)
     }
   }
 })
