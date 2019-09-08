@@ -22,7 +22,10 @@ export default Vue.extend({
     'atomDisplay',
     'bondDisplay',
     'hbondDisplay',
-    'polyhedraDisplay']),
+    'polyhedraDisplay',
+    'backgroundIsDark',
+    'showAxis',
+    'showCharges']),
   watch: {
     fileName (curr: string, prev) {
       jmolObj.script(`load ../cif/${curr} {1 1 1}`)
@@ -96,6 +99,18 @@ export default Vue.extend({
           spt = 'polyhedra off'
           break
       }
+      jmolObj.script(spt)
+    },
+    backgroundIsDark (cur: boolean) {
+      const spt = cur ? 'background [x263238]' : 'background white'
+      jmolObj.script(spt)
+    },
+    showAxis (cur: boolean) {
+      const spt = cur ? 'set axes 3; set unitcell dotted' : 'axes off; unitcell off'
+      jmolObj.script(spt)
+    },
+    showCharges (cur: boolean) {
+      const spt = cur ? 'color label white; label %[charge]' : 'label off'
       jmolObj.script(spt)
     }
   },

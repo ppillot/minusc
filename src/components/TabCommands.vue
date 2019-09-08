@@ -3,6 +3,7 @@
     <commands-atom />
     <commands-bond />
     <commands-polyedra v-if="solidType !== 'molecular'"/>
+    <commands-toggles />
   </div>
 </template>
 
@@ -11,6 +12,7 @@ import Vue from 'vue'
 import CommandsAtom from './Commands.Atom.vue'
 import CommandsBond from './Commands.Bond.vue'
 import CommandsPolyedra from './Commands.Polyedra.vue'
+import CommandsToggles from './Commands.Toggles.vue'
 import { mapState } from 'vuex'
 
 export default Vue.extend({
@@ -18,7 +20,8 @@ export default Vue.extend({
   components: {
     CommandsAtom,
     CommandsBond,
-    CommandsPolyedra
+    CommandsPolyedra,
+    CommandsToggles
   },
   data () {
     return {

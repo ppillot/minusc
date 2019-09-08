@@ -4,7 +4,8 @@ import Mutations from './mutations'
 import { AtomDisplay,
   HBondDisplay,
   BondDisplay,
-  PolyhedraDisplay
+  PolyhedraDisplay,
+  BottomFrameContent
 } from './utils/types'
 
 Vue.use(Vuex)
@@ -16,7 +17,13 @@ export default new Vuex.Store({
     atomDisplay: 'bs',
     bondDisplay: 'stick',
     hbondDisplay: 'off',
-    polyhedraDisplay: 'none'
+    polyhedraDisplay: 'none',
+    showAxis: true,
+    showCharges: false,
+    backgroundIsDark: true,
+    sidebar: {
+      bottomFrame: 'help'
+    }
   },
   mutations: {
     [Mutations.CHANGE_FILE]: function (state, fileName: string) {
@@ -36,6 +43,25 @@ export default new Vuex.Store({
     },
     [Mutations.POLYHEDRA_DISPLAYED]: function (state, style: PolyhedraDisplay) {
       state.polyhedraDisplay = style
+    },
+    [Mutations.TOGGLE_AXIS]: function (state) {
+      state.showAxis = ! state.showAxis
+    },
+    [Mutations.TOGGLE_CHARGES]: function (state) {
+      state.showCharges = ! state.showCharges
+    },
+    [Mutations.TOGGLE_SCRIPTS]: function (state) {
+      state.sidebar.bottomFrame = (state.sidebar.bottomFrame === 'scripts')
+      ? 'help'
+      : 'scripts'
+    },
+    [Mutations.TOGGLE_SETTINGS]: function (state) {
+      state.sidebar.bottomFrame = (state.sidebar.bottomFrame === 'settings')
+      ? 'help'
+      : 'settings'
+    },
+    [Mutations.TOGGLE_BGCOLOR]: function (state) {
+      state.backgroundIsDark = ! state.backgroundIsDark
     }
   },
   actions: {
