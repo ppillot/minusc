@@ -6,7 +6,9 @@
           <li data-tab="formula"  :class="{ active: activeTab == 'formula'}">Formule</li>
       </ul>
       <div class="tab__content">
-          <div :class="{ active: activeTab == 'files'}">Fichiers</div>
+          <div :class="{ active: activeTab == 'files'}">
+            <tab-files />
+          </div>
           <div :class="{ active: activeTab == 'commands'}">Commandes</div>
           <div :class="{ active: activeTab == 'formula'}">Formule</div>
       </div>
@@ -15,9 +17,13 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import TabFiles from './TabFiles.vue'
 
 export default Vue.extend({
   name: 'Controls',
+  components: {
+    TabFiles
+  },
   data () {
     return {
       activeTab: 'commands'
@@ -40,6 +46,7 @@ export default Vue.extend({
   flex: 1 1;
   display: flex;
   flex-direction: column;
+  overflow: auto;
 }
 ul.tabs {
     flex: 0 0;
@@ -72,5 +79,6 @@ ul.tabs {
         display: flex;
       }
     }
+    overflow: auto;
 }
 </style>
