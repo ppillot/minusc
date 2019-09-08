@@ -9,7 +9,9 @@
           <div :class="{ active: activeTab == 'files'}">
             <tab-files />
           </div>
-          <div :class="{ active: activeTab == 'commands'}">Commandes</div>
+          <div :class="{ active: activeTab == 'commands'}">
+            <tab-commands />
+          </div>
           <div :class="{ active: activeTab == 'formula'}">Formule</div>
       </div>
   </div>
@@ -18,11 +20,13 @@
 <script lang="ts">
 import Vue from 'vue'
 import TabFiles from './TabFiles.vue'
+import TabCommands from './TabCommands.vue'
 
 export default Vue.extend({
   name: 'Controls',
   components: {
-    TabFiles
+    TabFiles,
+    TabCommands
   },
   data () {
     return {

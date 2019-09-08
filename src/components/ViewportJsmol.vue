@@ -6,15 +6,32 @@
 import Vue from 'vue'
 import JmolWrapper from '../utils/jmol.wrapper'
 import { mapState } from 'vuex'
+import { AtomDisplay } from '../utils/types'
 
 let jmolObj: JmolWrapper
 
 export default Vue.extend({
   name: 'ViewportJsmol',
-  computed: mapState(['fileName']),
+  computed: mapState(['fileName', 'solidType', 'atomDisplay']),
   watch: {
-    fileName (curr, prev) {
+    fileName (curr: string, prev) {
       jmolObj.script(`load ../cif/${curr} {1 1 1}`)
+    },
+    atomDisplay (curr: AtomDisplay) {
+      let spt = ''
+      switch (curr) {
+        case 'sphere':
+          spt = (this.solidType === 'ionic') ? 'cpk ionic'
+            : (this.solidType === 'metal') ? 'cpk' : 'cpk'
+          break
+        case 'bs':
+          spt = 'cpk 20%'
+          break
+        case 'none':
+          spt = 'cpk off'
+          break
+      }
+      jmolObj.script(spt)
     }
   },
   mounted () {
