@@ -5,7 +5,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import JmolWrapper from '../utils/jmol.wrapper'
-import { mapState } from 'vuex';
+import { mapState } from 'vuex'
 
 let jmolObj: JmolWrapper
 
