@@ -1,4 +1,4 @@
-
+/* eslint-disable indent */
 
 
 enum JmolCommand {
@@ -62,7 +62,7 @@ class JmolWrapper {
         window.setTimeout(() => { this.sendCommand({
             type: JmolCommand.INIT,
             payload: defaultParam
-        })}, 500)
+        }) }, 500)
         // window.setTimeout(() => { this.setApplet(defaultParam)}, 500)
     }
 
@@ -91,7 +91,6 @@ class JmolWrapper {
             this.win.Jmol.script(this.win.myApplet, spt)
             this.pendingPromises.push(resolve)
         })
-
     }
 
     private receiveMessage (data: any) {
@@ -103,10 +102,9 @@ class JmolWrapper {
 
     private setApplet (param: Partial<jmol.AppletParameters>) {
         // @ts-ignore
-        const txt = this.win.Jmol.getAppletHtml('test', param);
-        this.doc.write(txt);
+        const txt = this.win.Jmol.getAppletHtml('test', param)
+        this.doc.write(txt)
     }
-
 }
 
 export default JmolWrapper
