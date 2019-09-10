@@ -11,6 +11,7 @@ import {
   BondDisplay,
   HBondDisplay,
   PolyhedraDisplay } from '../utils/types'
+import Mutations from '../mutations'
 
 let jmolObj: JmolWrapper
 
@@ -38,7 +39,29 @@ export default Vue.extend({
       zoom 200;
       set zshade on; set zshadepower 2;`)
         .then(() => {
-          console.log('file loaded')
+          let elements = jmolObj.getValue('{unitcell}.element') as string[]
+          let elementSet = new Set(elements)
+          elements = [...elementSet]
+
+          let atoms = elements.map(el => {
+            const spt = `{_${el}}[0].symbol + '|' + {_${el}}[0].charge + '|' + {_${el}}.occupancy + '|' + {_${el}}[0].ionic + '|' + {_${el}}[0].color`
+            const r = jmolObj.getValue(spt)
+            const pieces = r.split('|')
+            const color = pieces[4].split(' ').join(', ').substring(1, pieces[4].length + 1)
+            return {
+              unitVolume: null,
+              unitMass: null,
+              unitCharge: null,
+              unitNb: null,
+              symbol: pieces[0],
+              charge: pieces[1],
+              occupancy: pieces[2],
+              ionicRadius: pieces[3],
+              color: `rgb(${color})`
+            }
+          })
+
+          this.$store.commit(Mutations.SET_ATOMS, atoms)
         })
     },
     atomDisplay (curr: AtomDisplay) {

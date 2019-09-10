@@ -13,6 +13,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     fileName: 'sio2.cif',
+    initScript: '',
+    name: 'Quartz',
     solidType: 'ionic',
     atomDisplay: 'bs',
     bondDisplay: 'stick',
@@ -23,7 +25,18 @@ export default new Vuex.Store({
     backgroundIsDark: true,
     sidebar: {
       bottomFrame: 'help'
-    }
+    },
+    atoms: [{
+      symbol: 'O',
+      charge: -2,
+      occupancy: 1,
+      ionicRadius: 0,
+      unitVolume: null,
+      unitMass: null,
+      unitCharge: null,
+      unitNb: null,
+      color: 'rgb(255, 13, 13)'
+    }]
   },
   mutations: {
     [Mutations.CHANGE_FILE]: function (state, fileName: string) {
@@ -45,23 +58,26 @@ export default new Vuex.Store({
       state.polyhedraDisplay = style
     },
     [Mutations.TOGGLE_AXIS]: function (state) {
-      state.showAxis = ! state.showAxis
+      state.showAxis = !state.showAxis
     },
     [Mutations.TOGGLE_CHARGES]: function (state) {
-      state.showCharges = ! state.showCharges
+      state.showCharges = !state.showCharges
     },
     [Mutations.TOGGLE_SCRIPTS]: function (state) {
       state.sidebar.bottomFrame = (state.sidebar.bottomFrame === 'scripts')
-      ? 'help'
-      : 'scripts'
+        ? 'help'
+        : 'scripts'
     },
     [Mutations.TOGGLE_SETTINGS]: function (state) {
       state.sidebar.bottomFrame = (state.sidebar.bottomFrame === 'settings')
-      ? 'help'
-      : 'settings'
+        ? 'help'
+        : 'settings'
     },
     [Mutations.TOGGLE_BGCOLOR]: function (state) {
-      state.backgroundIsDark = ! state.backgroundIsDark
+      state.backgroundIsDark = !state.backgroundIsDark
+    },
+    [Mutations.SET_ATOMS]: function (state, atoms) {
+      state.atoms = atoms
     }
   },
   actions: {

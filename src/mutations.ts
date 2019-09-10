@@ -1,3 +1,5 @@
+/* eslint-disable no-multi-spaces */
+
 export enum Mutations {
     ATOM_DISPLAYED      = 'atomDisplayed',
     CHANGE_FILE         = 'changeFile',
@@ -8,7 +10,8 @@ export enum Mutations {
     TOGGLE_CHARGES      = 'toggleCharges',
     TOGGLE_SCRIPTS      = 'toggleScripts',
     TOGGLE_BGCOLOR      = 'toggleBgColor',
-    TOGGLE_SETTINGS     = 'toggleSettings'
+    TOGGLE_SETTINGS     = 'toggleSettings',
+    SET_ATOMS           = 'setAtoms'
 }
 
 export default Mutations
