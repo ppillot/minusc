@@ -27,6 +27,7 @@ class JmolWrapper {
     iFrame: HTMLIFrameElement
     doc : Document
     win : iFrameWindow
+    pendingPromises: any[] = []
     // param: Partial<jmol.AppletParameters>
     constructor (el: Element, param?: Partial<jmol.AppletParameters>) {
         this.iFrame = document.createElement('iframe')
@@ -51,7 +52,11 @@ class JmolWrapper {
         }
 
             // attach post message event handler
-        window.addEventListener('message', this.receiveMessage.bind(this))
+        window.addEventListener('message', (ev: MessageEvent) => {
+            if (ev.data.hasOwnProperty('source') && ev.data.source === 'jmolIframe') {
+                this.receiveMessage(ev.data)
+            }
+        })
 
             // init Jmol applet in iFrame
         window.setTimeout(() => { this.sendCommand({
@@ -80,8 +85,20 @@ class JmolWrapper {
         this.win.Jmol.script(this.win.myApplet, spt)
     }
 
-    private receiveMessage (ev: MessageEvent) {
-        console.log(ev.data)
+    public scriptAsync (spt: string) {
+        return new Promise<string>((resolve, reject) => {
+            spt += `; javascript returnMessage({type: 'promise', payload: ''});`
+            this.win.Jmol.script(this.win.myApplet, spt)
+            this.pendingPromises.push(resolve)
+        })
+
+    }
+
+    private receiveMessage (data: any) {
+        if (data.type === 'promise') {
+            const resolve = this.pendingPromises.pop()
+            resolve(data.payload)
+        }
     }
 
     private setApplet (param: Partial<jmol.AppletParameters>) {

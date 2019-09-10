@@ -19,7 +19,7 @@
 var myApplet;
 
         window.addEventListener('message', ev => {
-            console.log(JSON.parse(JSON.stringify(ev.data)));
+            // console.log(JSON.parse(JSON.stringify(ev.data)));
             // if (ev.origin !== document.location.host) return;
             handle(ev.data);
         })
@@ -43,6 +43,10 @@ var myApplet;
             }
         }
 
+        function returnMessage (opt) {
+            opt.source = 'jmolIframe';
+            window.parent.postMessage(opt, '*');
+        }
 
 
         </script>

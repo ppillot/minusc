@@ -28,7 +28,7 @@ export default Vue.extend({
     'showCharges']),
   watch: {
     fileName (curr: string, prev) {
-      jmolObj.script(`load ../cif/${curr} {3 3 3};
+      jmolObj.scriptAsync(`load ../cif/${curr} {3 3 3};
       restrict none;
       select all; color cpk; spacefill 20%; wireframe 0.15;
       color selectionHalos none;
@@ -37,6 +37,9 @@ export default Vue.extend({
       set axes 3;
       zoom 200;
       set zshade on; set zshadepower 2;`)
+        .then(() => {
+          console.log('file loaded')
+        })
     },
     atomDisplay (curr: AtomDisplay) {
       let spt = ''
