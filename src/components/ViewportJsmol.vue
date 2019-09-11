@@ -54,9 +54,9 @@ export default Vue.extend({
               unitCharge: null,
               unitNb: null,
               symbol: pieces[0],
-              charge: pieces[1],
-              occupancy: pieces[2],
-              ionicRadius: pieces[3],
+              charge: Number.parseFloat(pieces[1]),
+              occupancy: Number.parseFloat(pieces[2]),
+              ionicRadius: Number.parseFloat(pieces[3]),
               color: `rgb(${color})`
             }
           })

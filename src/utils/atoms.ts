@@ -111,7 +111,7 @@ export const atomicWeight = {
 'No':259,
 'Lr':262
 }
-export const atomName = {
+export const atomName: {[k: string]: string} = {
   'H':'hydrogen',
   'He':'helium',
   'Li':'lithium',
