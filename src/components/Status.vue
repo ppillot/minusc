@@ -38,7 +38,7 @@ export default Vue.extend({
       return this.atoms.map((atom) => {
         return {
           symbol: atom.symbol,
-          charge: (atom.charge === 0) ? '' : Math.abs(atom.charge) + ((atom.charge < 0) ? '-' : '+'),
+          charge: (atom.charge === 0) ? '' : (Math.abs(atom.charge) === 1 ? '' : Math.abs(atom.charge)) + ((atom.charge < 0) ? '-' : '+'),
           name: atomName[atom.symbol],
           color: atom.color
         }
