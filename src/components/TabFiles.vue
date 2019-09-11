@@ -14,6 +14,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import Files, { MinUScFile } from '../utils/files'
+import Mutations from '../mutations'
 
 export default Vue.extend({
   name: 'TabFiles',
@@ -54,8 +55,7 @@ export default Vue.extend({
   },
   methods: {
     loadFile: function (id: number) {
-      const fileName = Files[id].file
-      this.$store.commit('changeFile', fileName)
+      this.$store.commit(Mutations.CHANGE_FILE, Files[id])
     }
   }
 })

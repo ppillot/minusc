@@ -19,6 +19,7 @@ export default Vue.extend({
   name: 'ViewportJsmol',
   computed: mapState([
     'fileName',
+    'initScript',
     'solidType',
     'atomDisplay',
     'bondDisplay',
@@ -30,6 +31,7 @@ export default Vue.extend({
   watch: {
     fileName (curr: string, prev) {
       jmolObj.scriptAsync(`load ../cif/${curr} {3 3 3};
+      ${this.initScript};
       restrict none;
       select all; color cpk; spacefill 20%; wireframe 0.15;
       color selectionHalos none;

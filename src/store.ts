@@ -7,6 +7,7 @@ import { AtomDisplay,
   PolyhedraDisplay,
   BottomFrameContent
 } from './utils/types'
+import { MinUScFile } from './utils/files'
 
 Vue.use(Vuex)
 
@@ -39,8 +40,11 @@ export default new Vuex.Store({
     }]
   },
   mutations: {
-    [Mutations.CHANGE_FILE]: function (state, fileName: string) {
-      state.fileName = fileName
+    [Mutations.CHANGE_FILE]: function (state, file: MinUScFile) {
+      state.fileName = file.file
+      state.name = file.name
+      state.solidType = file.type || 'ionic'
+      state.initScript = file.script || ''
     },
     [Mutations.ATOM_DISPLAYED]: function (state, style: AtomDisplay) {
       state.atomDisplay = style

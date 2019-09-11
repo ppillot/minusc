@@ -31,7 +31,7 @@ const files: MinUScFile[] = [
   },
   { name: 'Anhydrite',
     'file': 'anhydrite-9004096.cif',
-    'script': ''
+    'script': 'connect (*) delete; connect 1.0 3.0 (sulfur) (oxygen)'
   },
   { name: 'Antigorite',
     'file': 'antigorite-serpentine-9003103.cif',
