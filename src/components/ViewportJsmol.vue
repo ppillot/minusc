@@ -27,10 +27,11 @@ export default Vue.extend({
     'polyhedraDisplay',
     'backgroundIsDark',
     'showAxis',
-    'showCharges']),
+    'showCharges',
+    'unitcell']),
   watch: {
     fileName (curr: string, prev) {
-      jmolObj.scriptAsync(`load ../cif/${curr} {3 3 3};
+      jmolObj.scriptAsync(`load ../cif/${curr} {3,3,3};
       ${this.initScript};
       restrict none;
       select all; color cpk; spacefill 20%; wireframe 0.15;
@@ -147,6 +148,24 @@ export default Vue.extend({
     },
     showCharges (cur: boolean) {
       const spt = cur ? 'color label white; label %[charge]' : 'label off'
+      jmolObj.script(spt)
+    },
+    unitcell (cur: {a: number, b: number, c: number}) {
+      const cells = []
+      for (let x = 0; x < cur.a; x++) {
+        if (cur.a === 1) x = 1
+        for (let y = 0; y < cur.b; y++) {
+          if (cur.b === 1) y = 1
+          for (let z = 0; z < cur.c; z++) {
+            if (cur.c === 1) z = 1
+            cells.push(`{${x} ${y} ${z} }`)
+          }
+        }
+      }
+
+      let spt = 'display ' + cells.map(cell => `cell=${cell}`).join(' or ')
+      spt += `; zoomto 0.6 {displayed} 100;`
+
       jmolObj.script(spt)
     }
   },

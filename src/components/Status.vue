@@ -1,6 +1,24 @@
 <template>
   <div class="status">
     <span class="title">{{ name }}</span>
+    <div class="unitcell__control">Afficher mailles:
+      x <select v-model="a">
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+        </select>
+      y <select v-model="b">
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+        </select>
+      z <select v-model="c">
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+        </select>
+    </div>
+    <br />
     <span class="atom"
       v-for="atom in listAtoms"
       :style="{ color: atom.color }"
@@ -14,6 +32,7 @@
 import Vue from 'vue'
 import { mapState } from 'vuex'
 import { atomName } from '../utils/atoms'
+import Mutations from '../mutations'
 
 interface AtomProps {
   charge: number,
@@ -30,7 +49,38 @@ interface AtomProps {
 export default Vue.extend({
   name: 'Status',
   computed: {
-    ...mapState(['name']),
+    ...mapState(['name', 'unitcell']),
+    a: {
+      get: function (): number {
+        // @ts-ignore
+        return this.unitcell.a
+      },
+      set: function (newVal: string) {
+        // @ts-ignore
+        this.$store.commit(Mutations.SET_UNITCELLS, [parseInt(newVal), this.unitcell.b, this.unitcell.c])
+      }
+    },
+    b: {
+      get: function (): number {
+        // @ts-ignore
+        return this.unitcell.b
+      },
+      set: function (newVal: string) {
+        // @ts-ignore
+        this.$store.commit(Mutations.SET_UNITCELLS, [this.unitcell.a, parseInt(newVal), this.unitcell.c])
+      }
+    },
+    c: {
+      get: function (): number {
+        // @ts-ignore
+        return this.unitcell.c
+      },
+      set: function (newVal: string) {
+        // @ts-ignore
+        this.$store.commit(Mutations.SET_UNITCELLS, [this.unitcell.a, this.unitcell.b, parseInt(newVal)])
+      }
+    },
+
     atoms: function () {
       return this.$store.state.atoms as AtomProps[]
     },
@@ -51,8 +101,7 @@ export default Vue.extend({
 <style scoped lang="scss">
 .status {
     background: #0c1c24;
-    flex: 0 0 120px;
-    display: flex;
+    flex: 0 0 80px;
     color: white;
 }
 .title {
@@ -66,5 +115,9 @@ export default Vue.extend({
 }
 sup {
   font-size: 0.8rem;
+}
+.unitcell__control {
+  float: right;
+  max-width: 300px;
 }
 </style>

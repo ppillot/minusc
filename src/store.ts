@@ -24,6 +24,11 @@ export default new Vuex.Store({
     showAxis: true,
     showCharges: false,
     backgroundIsDark: true,
+    unitcell: {
+      a: 1,
+      b: 1,
+      c: 1
+    },
     sidebar: {
       bottomFrame: 'help'
     },
@@ -82,6 +87,13 @@ export default new Vuex.Store({
     },
     [Mutations.SET_ATOMS]: function (state, atoms) {
       state.atoms = atoms
+    },
+    [Mutations.SET_UNITCELLS]: function (state, dimensions: [number, number, number]) {
+      state.unitcell = {
+        a: dimensions[0],
+        b: dimensions[1],
+        c: dimensions[2]
+      }
     }
   },
   actions: {

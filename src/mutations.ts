@@ -11,7 +11,8 @@ export enum Mutations {
     TOGGLE_SCRIPTS      = 'toggleScripts',
     TOGGLE_BGCOLOR      = 'toggleBgColor',
     TOGGLE_SETTINGS     = 'toggleSettings',
-    SET_ATOMS           = 'setAtoms'
+    SET_ATOMS           = 'setAtoms',
+    SET_UNITCELLS       = 'setUnitcells'
 }
 
 export default Mutations
