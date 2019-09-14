@@ -24,6 +24,7 @@ export default new Vuex.Store({
     showAxis: true,
     showCharges: false,
     backgroundIsDark: true,
+    isLoading: false,
     unitcell: {
       a: 1,
       b: 1,
@@ -46,10 +47,20 @@ export default new Vuex.Store({
   },
   mutations: {
     [Mutations.CHANGE_FILE]: function (state, file: MinUScFile) {
+      state.isLoading = true
       state.fileName = file.file
       state.name = file.name
       state.solidType = file.type || 'ionic'
       state.initScript = file.script || ''
+      state.atomDisplay = 'bs'
+      state.bondDisplay = 'stick'
+      state.hbondDisplay = 'off'
+      state.polyhedraDisplay = 'none'
+      state.unitcell = {
+        a: 1,
+        b: 1,
+        c: 1
+      }
     },
     [Mutations.ATOM_DISPLAYED]: function (state, style: AtomDisplay) {
       state.atomDisplay = style
@@ -94,6 +105,9 @@ export default new Vuex.Store({
         b: dimensions[1],
         c: dimensions[2]
       }
+    },
+    [Mutations.LOADING_FINISHED]: function (state) {
+      state.isLoading = false
     }
   },
   actions: {

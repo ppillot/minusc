@@ -28,7 +28,8 @@ export default Vue.extend({
     'backgroundIsDark',
     'showAxis',
     'showCharges',
-    'unitcell']),
+    'unitcell',
+    'isLoading']),
   watch: {
     fileName (curr: string, prev) {
       jmolObj.scriptAsync(`load ../cif/${curr} {3,3,3};
@@ -65,9 +66,12 @@ export default Vue.extend({
           })
 
           this.$store.commit(Mutations.SET_ATOMS, atoms)
+          this.$store.commit(Mutations.LOADING_FINISHED)
         })
     },
     atomDisplay (curr: AtomDisplay) {
+      if (this.isLoading) return
+
       let spt = ''
       switch (curr) {
         case 'sphere':
@@ -84,6 +88,8 @@ export default Vue.extend({
       jmolObj.script(spt)
     },
     bondDisplay (curr: BondDisplay) {
+      if (this.isLoading) return
+
       let spt = ''
       switch (curr) {
         case 'stick':
@@ -99,6 +105,8 @@ export default Vue.extend({
       jmolObj.script(spt)
     },
     hbondDisplay (curr: HBondDisplay) {
+      if (this.isLoading) return
+
       let spt = 'hbonds off'
       if (curr === 'hbond') {
         spt = 'calculate hbonds; hbonds on;'
@@ -106,6 +114,8 @@ export default Vue.extend({
       jmolObj.script(spt)
     },
     polyhedraDisplay (curr: PolyhedraDisplay) {
+      if (this.isLoading) return
+
       let spt = ''
       switch (curr) {
         case 'plain':
@@ -151,6 +161,8 @@ export default Vue.extend({
       jmolObj.script(spt)
     },
     unitcell (cur: {a: number, b: number, c: number}) {
+      if (this.isLoading) return
+
       const cells = []
       for (let x = 0; x < cur.a; x++) {
         if (cur.a === 1) x = 1
