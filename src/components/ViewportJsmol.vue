@@ -39,6 +39,8 @@ export default Vue.extend({
       select all; color cpk; spacefill 20%; wireframe 0.15;
       color selectionHalos none;
       unitcell {1 1 1} dotted; display cell={1 1 1};
+      set showUnitcellDetails false;
+      set displayCellParameters false;
       set selectionHalos off;
       set axes 3;
       zoom 200;
@@ -76,7 +78,6 @@ export default Vue.extend({
            * volume=524.2500189961353
            */
           let r = jmolObj.getValue(`script('show unitcell')`) as string
-          debugger
           const propReg = /(\w+)=([\d\.]+)/g
           let unitcell: Partial<UnitcellProp> = {}
           let capture: RegExpExecArray|null
