@@ -10,7 +10,8 @@ import {
   AtomDisplay,
   BondDisplay,
   HBondDisplay,
-  PolyhedraDisplay } from '../utils/types'
+  PolyhedraDisplay,
+  UnitcellProp } from '../utils/types'
 import Mutations from '../mutations'
 
 let jmolObj: JmolWrapper
@@ -49,7 +50,7 @@ export default Vue.extend({
 
           let atoms = elements.map(el => {
             const spt = `{_${el}}[0].symbol + '|' + {_${el}}[0].charge + '|' + {_${el}}.occupancy + '|' + {_${el}}[0].ionic + '|' + {_${el}}[0].color`
-            const r = jmolObj.getValue(spt)
+            const r = jmolObj.getValue(spt) as string
             const pieces = r.split('|')
             const color = pieces[4].split(' ').join(', ').substring(1, pieces[4].length + 1)
             return {
@@ -67,6 +68,24 @@ export default Vue.extend({
 
           this.$store.commit(Mutations.SET_ATOMS, atoms)
           this.$store.commit(Mutations.LOADING_FINISHED)
+
+          /* get unitcell parameters
+           * String of the form: a=8.0633, b=8.0633, c=8.0633, alpha=90, beta=90,
+           * gamma=90 [{8.063300754642581 8.063300377321264 8.063299999999982},
+           * {8.0633 0 0}, {0 8.063299999999991 0}, {0 0 8.063299999999982}]
+           * volume=524.2500189961353
+           */
+          let r = jmolObj.getValue(`script('show unitcell')`) as string
+          debugger
+          const propReg = /(\w+)=([\d\.]+)/g
+          let unitcell: Partial<UnitcellProp> = {}
+          let capture: RegExpExecArray|null
+          while ((capture = propReg.exec(r)) !== null) {
+            const prop = capture[1] as keyof UnitcellProp
+            const val = capture[2]
+            unitcell[prop] = Number.parseFloat(val)
+          }
+          this.$store.commit(Mutations.SET_UNITCELL_PROP, unitcell)
         })
     },
     atomDisplay (curr: AtomDisplay) {

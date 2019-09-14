@@ -13,7 +13,8 @@ export enum Mutations {
     TOGGLE_SETTINGS     = 'toggleSettings',
     SET_ATOMS           = 'setAtoms',
     SET_UNITCELLS       = 'setUnitcells',
-    LOADING_FINISHED    = 'loadingFinished'
+    LOADING_FINISHED    = 'loadingFinished',
+    SET_UNITCELL_PROP   = 'setUnitCellProp'
 }
 
 export default Mutations

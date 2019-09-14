@@ -5,7 +5,8 @@ import { AtomDisplay,
   HBondDisplay,
   BondDisplay,
   PolyhedraDisplay,
-  BottomFrameContent
+  BottomFrameContent,
+  UnitcellProp
 } from './utils/types'
 import { MinUScFile } from './utils/files'
 
@@ -29,6 +30,15 @@ export default new Vuex.Store({
       a: 1,
       b: 1,
       c: 1
+    },
+    unitcellProp: {
+      a: 0,
+      b: 0,
+      c: 0,
+      alpha: 90,
+      beta: 90,
+      gamma: 90,
+      volume: 500
     },
     sidebar: {
       bottomFrame: 'help'
@@ -108,6 +118,9 @@ export default new Vuex.Store({
     },
     [Mutations.LOADING_FINISHED]: function (state) {
       state.isLoading = false
+    },
+    [Mutations.SET_UNITCELL_PROP]: function (state, prop: UnitcellProp) {
+      state.unitcellProp = prop
     }
   },
   actions: {
