@@ -12,7 +12,9 @@
           <div :class="{ active: activeTab == 'commands'}">
             <tab-commands />
           </div>
-          <div :class="{ active: activeTab == 'formula'}">Formule</div>
+          <div :class="{ active: activeTab == 'formula'}">
+            <tab-formula />
+          </div>
       </div>
   </div>
 </template>
@@ -21,12 +23,15 @@
 import Vue from 'vue'
 import TabFiles from './TabFiles.vue'
 import TabCommands from './TabCommands.vue'
+import TabFormula from './TabFormula.vue'
+import Mutations from '../mutations'
 
 export default Vue.extend({
   name: 'Controls',
   components: {
     TabFiles,
-    TabCommands
+    TabCommands,
+    TabFormula
   },
   data () {
     return {
@@ -36,9 +41,11 @@ export default Vue.extend({
   methods: {
     activate: function (ev: MouseEvent) {
       const tabType = (ev.target as HTMLElement).dataset.tab
-      console.log(tabType)
       if (!tabType) return
       this.activeTab = tabType
+      if (tabType === 'formula') {
+        this.$store.commit(Mutations.SET_MODE, 'formula')
+      }
     }
   }
 })
