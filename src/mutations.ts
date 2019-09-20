@@ -16,7 +16,9 @@ export enum Mutations {
     LOADING_FINISHED    = 'loadingFinished',
     SET_UNITCELL_PROP   = 'setUnitCellProp',
     RESTRICT_VIEW       = 'restrictView',
-    SET_MODE            = 'setMode'
+    SET_MODE            = 'setMode',
+    PLANE_VIEW          = 'planeView'
+
 }
 
 export default Mutations

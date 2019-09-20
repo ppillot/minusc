@@ -78,6 +78,7 @@ export default new Vuex.Store({
         b: 1,
         c: 1
       }
+      state.formulaDisplayPlanes = 'none'
     },
     [Mutations.ATOM_DISPLAYED]: function (state, style: AtomDisplay) {
       state.atomDisplay = style
@@ -134,6 +135,11 @@ export default new Vuex.Store({
     },
     [Mutations.RESTRICT_VIEW]: function (state, view: FormulaRestrictedView) {
       state.formulaDisplay = view
+    },
+    [Mutations.PLANE_VIEW]: function (state, mode: FormulaPlaneView) {
+      state.formulaDisplayPlanes = (mode === state.formulaDisplayPlanes)
+        ? 'none'  // disable if already set
+        : mode
     }
   },
   actions: {

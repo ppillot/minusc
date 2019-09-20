@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <formula-restrict />
+    <formula-planes />
   </div>
 </template>
 
@@ -8,11 +9,13 @@
 import Vue from 'vue'
 import { mapState } from 'vuex'
 import FormulaRestrict from './Formula.Restrict.vue'
+import FormulaPlanes from './Formula.Planes.vue'
 
 export default Vue.extend({
   name: 'TabFormula',
   components: {
-    FormulaRestrict
+    FormulaRestrict,
+    FormulaPlanes
   }
 })
 </script>

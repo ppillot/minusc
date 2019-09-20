@@ -12,7 +12,8 @@ import {
   HBondDisplay,
   PolyhedraDisplay,
   UnitcellProp,
-  FormulaRestrictedView } from '../utils/types'
+  FormulaRestrictedView,
+  FormulaPlaneView} from '../utils/types'
 import Mutations from '../mutations'
 
 let jmolObj: JmolWrapper
@@ -39,7 +40,8 @@ export default Vue.extend({
       'showCharges',
       'isLoading',
       'formulaIsOn',
-      'formulaDisplay']),
+      'formulaDisplay',
+      'formulaDisplayPlanes']),
     unitcellScript: function () {
       const u = this.$store.state.unitcell as {a: number, b: number, c: number}
       const cells = []
@@ -171,7 +173,6 @@ export default Vue.extend({
           this.$store.commit(Mutations.SET_UNITCELL_PROP, unitcell)
 
           // set the predefined sets
-          console.log(this.defineSetsScript)
           jmolObj.script(this.defineSetsScript)
         })
     },
@@ -289,6 +290,45 @@ export default Vue.extend({
           break
         default:
           spt = 'display {1 1 1}'
+          break
+      }
+      jmolObj.script(spt)
+    },
+    formulaDisplayPlanes (cur: FormulaPlaneView) {
+      if (this.$store.state.isLoading) return
+      let spt = ''
+      switch (cur) {
+        case 'none':
+          spt = `draw pl1 off;
+          draw pl2 off;
+          draw pl3 off;
+          draw pl4 off;
+          draw pl5 off;
+          draw pl6 off;`
+          break
+        case 'back':
+          spt = `draw pl1 off; draw pl2 off; draw pl3 off;
+          draw pl4 off; draw pl5 off; draw pl6 off;
+          draw pl1 plane {0 0 0/1} {1 0 0/1} {1/2 1 0};
+          draw pl2 plane {0 0 0/1} {0 1 0/1} {0 1/2 1};
+          draw pl3 plane {0 0 0/1} {0 0 1/1} {1 0 1/2};
+          color $pl1 dodgerblue translucent 0.2;
+          color $pl2 dodgerblue translucent 0.2;
+          color $pl3 dodgerblue translucent 0.2;`
+          break
+        case 'all':
+          spt = `draw pl1 plane {0 0 0/1} {1 0 0/1} {1/2 1 0/1};
+          draw pl2 plane {0 0 0/1} {0 1 0/1} {0 1/2 1/1};
+          draw pl3 plane {0 0 0/1} {0 0 1/1} {1 0 1/2};
+          draw pl4 plane {1 1 1/1} {1 1 0/1} {0 1 1/2};
+          draw pl5 plane {1 1 1/1} {0 1 1/1} {1/2 0 1};
+          draw pl6 plane {1 1 1/1} {1 0 1/1} {1 1/2 0};
+          color $pl1 dodgerblue translucent 0.2;
+          color $pl2 dodgerblue translucent 0.2;
+          color $pl3 dodgerblue translucent 0.2;
+          color $pl4 dodgerblue translucent 0.2;
+          color $pl5 dodgerblue translucent 0.2;
+          color $pl6 dodgerblue translucent 0.2;`
           break
       }
       jmolObj.script(spt)
