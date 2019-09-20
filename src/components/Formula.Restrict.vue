@@ -10,7 +10,8 @@
         </div>
         <div class="button--big" @click="restrictView('face')">
             <img src="img/face.png" />
-            <br> <b>F</b>aces</div>
+            <br> <b>F</b>aces
+        </div>
         <div class="button--big" @click="restrictView('edge')">
             <img src="img/arete.png" />
             <br> <b>A</b>rêtes
