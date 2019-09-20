@@ -6,7 +6,11 @@ import { AtomDisplay,
   BondDisplay,
   PolyhedraDisplay,
   BottomFrameContent,
-  UnitcellProp
+  SolidType,
+  UnitcellProp,
+  FormulaRestrictedView,
+  MinuscMode,
+  FormulaPlaneView
 } from './utils/types'
 import { MinUScFile } from './utils/files'
 
@@ -17,15 +21,18 @@ export default new Vuex.Store({
     fileName: 'sio2.cif',
     initScript: '',
     name: 'Quartz',
-    solidType: 'ionic',
-    atomDisplay: 'bs',
-    bondDisplay: 'stick',
-    hbondDisplay: 'off',
-    polyhedraDisplay: 'none',
+    solidType: 'ionic' as SolidType,
+    atomDisplay: 'bs' as AtomDisplay,
+    bondDisplay: 'stick' as BondDisplay,
+    hbondDisplay: 'off' as HBondDisplay,
+    polyhedraDisplay: 'none' as PolyhedraDisplay,
     showAxis: true,
     showCharges: false,
     backgroundIsDark: true,
     isLoading: false,
+    formulaIsOn: false,
+    formulaDisplay: 'all' as FormulaRestrictedView,
+    formulaDisplayPlanes: 'none' as FormulaPlaneView,
     unitcell: {
       a: 1,
       b: 1,
@@ -64,7 +71,7 @@ export default new Vuex.Store({
       state.initScript = file.script || ''
       state.atomDisplay = 'bs'
       state.bondDisplay = 'stick'
-      state.hbondDisplay = 'off'
+      state.hbondDisplay = 'none'
       state.polyhedraDisplay = 'none'
       state.unitcell = {
         a: 1,
@@ -121,6 +128,12 @@ export default new Vuex.Store({
     },
     [Mutations.SET_UNITCELL_PROP]: function (state, prop: UnitcellProp) {
       state.unitcellProp = prop
+    },
+    [Mutations.SET_MODE]: function (state, mode: MinuscMode) {
+      state.formulaIsOn = (mode === 'formula')
+    },
+    [Mutations.RESTRICT_VIEW]: function (state, view: FormulaRestrictedView) {
+      state.formulaDisplay = view
     }
   },
   actions: {

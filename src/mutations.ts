@@ -14,7 +14,9 @@ export enum Mutations {
     SET_ATOMS           = 'setAtoms',
     SET_UNITCELLS       = 'setUnitcells',
     LOADING_FINISHED    = 'loadingFinished',
-    SET_UNITCELL_PROP   = 'setUnitCellProp'
+    SET_UNITCELL_PROP   = 'setUnitCellProp',
+    RESTRICT_VIEW       = 'restrictView',
+    SET_MODE            = 'setMode'
 }
 
 export default Mutations

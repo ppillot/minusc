@@ -13,3 +13,6 @@ export interface UnitcellProp {
     gamma: number
     volume: number
   }
+export type FormulaRestrictedView = 'interior'|'face'|'edge'|'vertex'|'all'
+export type FormulaPlaneView = 'none'|'all'|'back'
+export type MinuscMode = 'regular'|'formula'
