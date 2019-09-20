@@ -11,30 +11,101 @@ import {
   BondDisplay,
   HBondDisplay,
   PolyhedraDisplay,
-  UnitcellProp } from '../utils/types'
+  UnitcellProp,
+  FormulaRestrictedView } from '../utils/types'
 import Mutations from '../mutations'
 
 let jmolObj: JmolWrapper
+function makeSpt (planes: string[][]) {
+  return '(' +
+    planes.map(pl => {
+      return pl.join(' and ')
+    }).join(') or (') +
+    ')'
+}
 
 export default Vue.extend({
   name: 'ViewportJsmol',
-  computed: mapState([
-    'fileName',
-    'initScript',
-    'solidType',
-    'atomDisplay',
-    'bondDisplay',
-    'hbondDisplay',
-    'polyhedraDisplay',
-    'backgroundIsDark',
-    'showAxis',
-    'showCharges',
-    'unitcell',
-    'isLoading']),
+  computed: {
+    ...mapState([
+      'fileName',
+      'solidType',
+      'atomDisplay',
+      'bondDisplay',
+      'hbondDisplay',
+      'polyhedraDisplay',
+      'backgroundIsDark',
+      'showAxis',
+      'showCharges',
+      'isLoading',
+      'formulaIsOn',
+      'formulaDisplay']),
+    unitcellScript: function () {
+      const u = this.$store.state.unitcell as {a: number, b: number, c: number}
+      const cells = []
+      for (let x = 0; x < u.a; x++) {
+        if (u.a === 1) x = 1
+        for (let y = 0; y < u.b; y++) {
+          if (u.b === 1) y = 1
+          for (let z = 0; z < u.c; z++) {
+            if (u.c === 1) z = 1
+            cells.push(`{${x} ${y} ${z} }`)
+          }
+        }
+      }
+
+      let spt = 'display ' + cells.map(cell => `cell=${cell}`).join(' or ')
+      spt += `; zoomto 0.6 {displayed} 100;`
+      return spt
+    },
+    // Note: different techniques could be envision for selecting the atoms
+    // located at the unitcell interface. WITHIN offset distance from a plane
+    // and fractional coordinates of atoms do not allow sufficient
+    // rounding of the coordinates to include them in the proper set.
+    // The only reliable method seems to be cell selection.
+    defineSetsScript: function () {
+      const vertices = []
+      const edges = []
+      const faces = []
+
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          for (let k = 0; k < 3; k++) {
+            const arr = [i, j, k]
+            const tot = (i & 1) + (j & 1) + (k & 1)
+            switch (tot) {
+              case 0:
+                vertices.push(arr)
+                break
+              case 1:
+                edges.push(arr)
+                break
+              case 2:
+                faces.push(arr)
+                break
+              default:
+                // interior
+            }
+          }
+        }
+      }
+      let spt = `define vertex (cell={1 1 1} and (${vertices.map(arr => {
+        return `cell={${arr.join(' ')}}`
+      }).join(' or ')}) );`
+      spt += `define edge (cell={1 1 1} and (${edges.map(arr => {
+        return `cell={${arr.join(' ')}}`
+      }).join(' or ')}) and not vertex);`
+      spt += `define face (cell={1 1 1} and (${faces.map(arr => {
+        return `cell={${arr.join(' ')}}`
+      }).join(' or ')}) and not edge and not vertex);`
+      spt += `define interior (cell={1 1 1} and not vertex and not edge and not face)`
+      return spt
+    }
+  },
   watch: {
     fileName (curr: string, prev) {
       jmolObj.scriptAsync(`load ../cif/${curr} {3,3,3};
-      ${this.initScript};
+      ${this.$store.state.initScript};
       restrict none;
       select all; color cpk; spacefill 20%; wireframe 0.15;
       color selectionHalos none;
@@ -78,7 +149,18 @@ export default Vue.extend({
            * volume=524.2500189961353
            */
           let r = jmolObj.getValue(`script('show unitcell')`) as string
-          const propReg = /(\w+)=([\d\.]+)/g
+          /*
+            (\w+) captures word
+            =     equal sign
+            (     begin capture value
+              \d+ number (int part)
+              (?: begin non capture group for decimal part
+                /.  the decimal separator
+                \d+ the decimal numbers
+              )?  non capturing group (decimal part) present 0 or once
+            )     end capture value
+          */
+          const propReg = /(\w+)=(\d+(?:\.\d+)?)/g
           let unitcell: Partial<UnitcellProp> = {}
           let capture: RegExpExecArray|null
           while ((capture = propReg.exec(r)) !== null) {
@@ -87,16 +169,20 @@ export default Vue.extend({
             unitcell[prop] = Number.parseFloat(val)
           }
           this.$store.commit(Mutations.SET_UNITCELL_PROP, unitcell)
+
+          // set the predefined sets
+          console.log(this.defineSetsScript)
+          jmolObj.script(this.defineSetsScript)
         })
     },
     atomDisplay (curr: AtomDisplay) {
-      if (this.isLoading) return
+      if (this.$store.state.isLoading) return
 
       let spt = ''
       switch (curr) {
         case 'sphere':
-          spt = (this.solidType === 'ionic') ? 'cpk ionic'
-            : (this.solidType === 'metal') ? 'cpk' : 'cpk'
+          spt = (this.$store.state.solidType === 'ionic') ? 'cpk ionic'
+            : (this.$store.state.solidType === 'metal') ? 'cpk' : 'cpk'
           break
         case 'bs':
           spt = 'cpk 20%'
@@ -108,7 +194,7 @@ export default Vue.extend({
       jmolObj.script(spt)
     },
     bondDisplay (curr: BondDisplay) {
-      if (this.isLoading) return
+      if (this.$store.state.isLoading) return
 
       let spt = ''
       switch (curr) {
@@ -125,7 +211,7 @@ export default Vue.extend({
       jmolObj.script(spt)
     },
     hbondDisplay (curr: HBondDisplay) {
-      if (this.isLoading) return
+      if (this.$store.state.isLoading) return
 
       let spt = 'hbonds off'
       if (curr === 'hbond') {
@@ -134,7 +220,7 @@ export default Vue.extend({
       jmolObj.script(spt)
     },
     polyhedraDisplay (curr: PolyhedraDisplay) {
-      if (this.isLoading) return
+      if (this.$store.state.isLoading) return
 
       let spt = ''
       switch (curr) {
@@ -180,24 +266,31 @@ export default Vue.extend({
       const spt = cur ? 'color label white; label %[charge]' : 'label off'
       jmolObj.script(spt)
     },
-    unitcell (cur: {a: number, b: number, c: number}) {
-      if (this.isLoading) return
-
-      const cells = []
-      for (let x = 0; x < cur.a; x++) {
-        if (cur.a === 1) x = 1
-        for (let y = 0; y < cur.b; y++) {
-          if (cur.b === 1) y = 1
-          for (let z = 0; z < cur.c; z++) {
-            if (cur.c === 1) z = 1
-            cells.push(`{${x} ${y} ${z} }`)
-          }
-        }
+    unitcellScript (cur: {a: number, b: number, c: number}) {
+      if (this.$store.state.isLoading || this.$store.state.formulaIsOn) return
+      jmolObj.script(this.unitcellScript)
+    },
+    formulaIsOn (cur: boolean) {
+      if (this.$store.state.isLoading) return
+      if (cur) {
+        jmolObj.script('display cell={1 1 1}; zoomto {displayed} 100;')
+      } else {
+        jmolObj.script(this.unitcellScript)
       }
-
-      let spt = 'display ' + cells.map(cell => `cell=${cell}`).join(' or ')
-      spt += `; zoomto 0.6 {displayed} 100;`
-
+    },
+    formulaDisplay (cur: FormulaRestrictedView) {
+      let spt = ''
+      switch (cur) {
+        case 'interior':
+        case 'face':
+        case 'edge':
+        case 'vertex':
+          spt = `display ${cur}`
+          break
+        default:
+          spt = 'display {1 1 1}'
+          break
+      }
       jmolObj.script(spt)
     }
   },
