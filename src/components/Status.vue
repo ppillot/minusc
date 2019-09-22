@@ -33,18 +33,7 @@ import Vue from 'vue'
 import { mapState } from 'vuex'
 import { atomName } from '../utils/atoms'
 import Mutations from '../mutations'
-
-interface AtomProps {
-  charge: number,
-  color: string,
-  ionicRadius: number,
-  occupancy: number,
-  symbol: string,
-  unitVolume: number,
-  unitCharge: number,
-  UnitNb: number,
-  UnitMass: number
-}
+import { AtomProps } from '../utils/types'
 
 export default Vue.extend({
   name: 'Status',
@@ -85,7 +74,7 @@ export default Vue.extend({
       return this.$store.state.atoms as AtomProps[]
     },
     listAtoms: function () {
-      return this.atoms.map((atom) => {
+      return this.atoms.map((atom: AtomProps) => {
         return {
           symbol: atom.symbol,
           charge: (atom.charge === 0) ? '' : (Math.abs(atom.charge) === 1 ? '' : Math.abs(atom.charge)) + ((atom.charge < 0) ? '-' : '+'),

@@ -1,4 +1,8 @@
-export const atomicWeight = {
+import { AtomicSymbol } from './types'
+
+export const molarMass: {
+  [k in AtomicSymbol]: number
+} = {
   'H': 1.008,
   'He': 4.003,
   'Li': 6.941,
@@ -111,7 +115,7 @@ export const atomicWeight = {
   'No': 259,
   'Lr': 262
 }
-export const atomName: { [k: string]: string } = {
+export const atomName: { [k in AtomicSymbol]: string } = {
   'H': 'hydrogen',
   'He': 'helium',
   'Li': 'lithium',
@@ -224,7 +228,7 @@ export const atomName: { [k: string]: string } = {
   'No': 'nobelium',
   'Lr': 'lawrencium'
 }
-export const metallicRadius = {
+export const metallicRadius: Partial<{[k in AtomicSymbol]: number}> = {
   'Li': 1.52,
   'Be': 1.12,
 
@@ -302,6 +306,6 @@ export const metallicRadius = {
 
 export default {
   atomName,
-  atomicWeight,
+  molarMass,
   metallicRadius
 }
