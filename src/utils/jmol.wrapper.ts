@@ -34,19 +34,19 @@ class JmolWrapper {
         this.iFrame.setAttribute('height', '100%')
         this.iFrame.setAttribute('width', '100%')
         this.iFrame.setAttribute('style', 'border: none')
-        this.iFrame.src = "jsmol/jsmol.htm"
+        this.iFrame.src = 'jsmol/jsmol.htm'
         el.append(this.iFrame);
 
         this.doc = this.iFrame.contentDocument!
         this.win = this.iFrame.contentWindow as unknown as iFrameWindow
 
         const defaultParam: Partial<jmol.AppletParameters> = {
-            color: "#263238",
+            color: '#263238',
             height: '100%',
             width: '100%',
-            script: "load ../cif/sio2.cif {1 1 1}; set highresolution on",
-            use: "HTML5",
-            j2sPath: "jsmol/j2s",
+            script: 'load ../cif/sio2.cif {1 1 1}; set highresolution on',
+            use: 'HTML5',
+            j2sPath: 'jsmol/j2s',
             disableInitialConsole: false,
             ...param
         }
