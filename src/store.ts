@@ -18,7 +18,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    fileName: 'sio2.cif',
+    fileName: '',
     initScript: '',
     name: 'Quartz',
     solidType: 'ionic' as SolidType,
@@ -42,18 +42,18 @@ export default new Vuex.Store({
       a: 0,
       b: 0,
       c: 0,
-      alpha: 90,
-      beta: 90,
-      gamma: 90,
-      volume: 500
+      alpha: 0,
+      beta: 0,
+      gamma: 0,
+      volume: 0
     },
     sidebar: {
       bottomFrame: 'help'
     },
     atoms: [{
-      symbol: 'O',
-      charge: -2,
-      occupancy: 1,
+      symbol: '',
+      charge: 0,
+      occupancy: 0,
       ionicRadius: 0,
       unitVolume: null,
       unitMass: null,
