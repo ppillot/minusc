@@ -13,8 +13,9 @@ import {
   PolyhedraDisplay,
   UnitcellProp,
   FormulaRestrictedView,
-  FormulaPlaneView} from '../utils/types'
+  FormulaPlaneView } from '../utils/types'
 import Mutations from '../mutations'
+import { MinUScFile } from '../utils/files'
 
 let jmolObj: JmolWrapper
 function makeSpt (planes: string[][]) {
@@ -340,7 +341,13 @@ export default Vue.extend({
   },
   mounted () {
     jmolObj = new JmolWrapper(this.$el, {
-      color: '#263238'
+      color: '#263238',
+      readyFunction: () => {
+        this.$store.commit(
+          Mutations.CHANGE_FILE,
+          { name: 'Quartz', file: 'sio2.cif' } as MinUScFile
+        )
+      }
     })
   }
 })
