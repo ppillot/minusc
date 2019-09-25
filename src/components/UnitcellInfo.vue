@@ -1,5 +1,5 @@
 <template>
-  <div class="info">
+  <div class="info" :style="visibility">
     <span class="title">{{ name }}</span>
     <ul>
         <li v-for="l in lengths" :key="l[0]">
@@ -36,6 +36,11 @@ export default Vue.extend({
         ['β', prop.beta],
         ['γ', prop.gamma]
       ]
+    },
+    visibility () {
+      return this.$store.state.unitcellProp.volume === 0
+        ? { visibility: 'hidden' }
+        : { visibility: 'visible' }
     }
   },
   filters: {
