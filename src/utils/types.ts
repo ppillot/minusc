@@ -24,7 +24,10 @@ export interface AtomProps {
   UnitNb: number,
   UnitMass: number
 }
-export type FormulaRestrictedView = 'interior'|'face'|'edge'|'vertex'|'all'
+export interface FormulaRestrictedView {
+  part: 'interior'|'face'|'edge'|'vertex'|'all',
+  element?: AtomicSymbol|'all'
+}
 export type FormulaPlaneView = 'none'|'all'|'back'
 export type MinuscMode = 'regular'|'formula'
 export type AtomicSymbol = 'H'|'He'|'Li'|'Be'|'B'|'C'|'N'|'O'|'F'|'Ne'|'Na'|

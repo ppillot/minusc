@@ -19,10 +19,18 @@
         <tbody>
             <tr v-for="(atom, index) in atoms" :key="index">
                 <td>{{ atom.symbol }}</td>
-                <td><input v-model="table[index].interior" /></td>
-                <td><input v-model="table[index].face" /></td>
-                <td><input v-model="table[index].edge" /></td>
-                <td><input v-model="table[index].vertex" /></td>
+                <td><input
+                  v-model="table[index].interior"
+                  @focus="restrictView({part: 'interior', element: atom.symbol})" /></td>
+                <td><input
+                  v-model="table[index].face"
+                  @focus="restrictView({part: 'face', element: atom.symbol})" /></td>
+                <td><input
+                  v-model="table[index].edge"
+                  @focus="restrictView({part: 'edge', element: atom.symbol})" /></td>
+                <td><input
+                  v-model="table[index].vertex"
+                  @focus="restrictView({part: 'vertex', element: atom.symbol})" /></td>
                 <td>{{ amount[index].total }}</td>
                 <td>{{ amount[index].mass }}</td>
                 <td>{{ amount[index].percent | precision(1) }}</td>
@@ -40,7 +48,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import Mutations from '../mutations'
-import { AtomProps } from '../utils/types'
+import { AtomProps, FormulaRestrictedView } from '../utils/types'
 import { molarMass } from '../utils/atoms'
 
 interface UnitcellPart {
@@ -133,6 +141,9 @@ export default Vue.extend({
     }
   },
   methods: {
+    restrictView (type: FormulaRestrictedView) {
+      this.$store.commit(Mutations.RESTRICT_VIEW, type)
+    }
   }
 })
 </script>

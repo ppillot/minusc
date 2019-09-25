@@ -281,15 +281,19 @@ export default Vue.extend({
     },
     formulaDisplay (cur: FormulaRestrictedView) {
       let spt = ''
-      switch (cur) {
+      const subSelection = (cur.element !== undefined && cur.element !== 'all')
+        ? ` and _${cur.element}`
+        : ''
+
+      switch (cur.part) {
         case 'interior':
         case 'face':
         case 'edge':
         case 'vertex':
-          spt = `display ${cur}`
+          spt = `display ${cur.part} ${subSelection}`
           break
         default:
-          spt = 'display {1 1 1}'
+          spt = 'display {1 1 1}' + subSelection
           break
       }
       jmolObj.script(spt)

@@ -31,7 +31,7 @@ export default new Vuex.Store({
     backgroundIsDark: true,
     isLoading: false,
     formulaIsOn: false,
-    formulaDisplay: 'all' as FormulaRestrictedView,
+    formulaDisplay: { part: 'all' } as FormulaRestrictedView,
     formulaDisplayPlanes: 'none' as FormulaPlaneView,
     unitcell: {
       a: 1,

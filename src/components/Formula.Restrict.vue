@@ -39,8 +39,8 @@ export default Vue.extend({
 
   },
   methods: {
-    restrictView (type: FormulaRestrictedView) {
-      this.$store.commit(Mutations.RESTRICT_VIEW, type)
+    restrictView (type: FormulaRestrictedView['part']) {
+      this.$store.commit(Mutations.RESTRICT_VIEW, { part: type } as FormulaRestrictedView)
     }
   }
 })
