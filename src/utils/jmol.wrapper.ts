@@ -8,7 +8,7 @@ enum JmolCommand {
 }
 
 interface JmolCommandMap {
-    'initApplet': Partial<jmol.AppletParameters>
+    'initApplet': Partial<jmol.AppletParameters>|{cb: Partial<SubscribedCallBacks>}
     'script'    : string
     'evaluate'  : string
 }
@@ -22,12 +22,31 @@ interface iFrameWindow extends Window {
     Jmol: JmolStatic
     myApplet: jmol.JmolApplet
 }
+type SubscribedCallBacks = {
+    ready: boolean,
+    animFrame: boolean,
+    appletReady: boolean,
+    atomMoved: boolean,
+    echo: boolean,
+    eval: boolean,
+    hover: boolean,
+    loadStruct: boolean,
+    measure: boolean,
+    message: boolean,
+    minimization: boolean,
+    pick: boolean,
+    resize: boolean,
+    script: boolean,
+    structureModified: boolean,
+    sync: boolean
+}
 
 class JmolWrapper {
     iFrame: HTMLIFrameElement
     doc : Document
     win : iFrameWindow
     pendingPromises: any[] = []
+    readyCB: (a?: any)=>void = () => {}
     // param: Partial<jmol.AppletParameters>
     constructor (el: Element, param?: Partial<jmol.AppletParameters>) {
         this.iFrame = document.createElement('iframe')
@@ -40,11 +59,18 @@ class JmolWrapper {
         this.doc = this.iFrame.contentDocument!
         this.win = this.iFrame.contentWindow as unknown as iFrameWindow
 
+        const cb: Partial<SubscribedCallBacks> = {}
+
+        if (param && param.readyFunction) {
+            this.readyCB = param.readyFunction
+            param.readyFunction = undefined
+            cb.ready = true
+        }
+
         const defaultParam: Partial<jmol.AppletParameters> = {
-            color: '#263238',
             height: '100%',
             width: '100%',
-            script: 'load ../cif/sio2.cif {1 1 1}; set highresolution on',
+            //script: 'load ../cif/sio2.cif {1 1 1}; set highresolution on',
             use: 'HTML5',
             j2sPath: 'jsmol/j2s',
             disableInitialConsole: false,
@@ -61,7 +87,10 @@ class JmolWrapper {
             // init Jmol applet in iFrame
         window.setTimeout(() => { this.sendCommand({
             type: JmolCommand.INIT,
-            payload: defaultParam
+            payload: {
+                ...defaultParam,
+                cb
+            }
         }) }, 500)
         // window.setTimeout(() => { this.setApplet(defaultParam)}, 500)
     }
@@ -97,6 +126,8 @@ class JmolWrapper {
         if (data.type === 'promise') {
             const resolve = this.pendingPromises.pop()
             resolve(data.payload)
+        } else if (data.type === 'ready') {
+            this.readyCB()
         }
     }
 

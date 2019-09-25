@@ -27,8 +27,10 @@ var myApplet;
         function handle(data) {
             switch (data.type) {
                 case 'initApplet':
+                    if (data.payload.cb.ready) {
+                        data.payload.readyFunction = readyFunction
+                    }
                     Jmol.setDocument(0);
-                    console.log('hi')
                     myApplet =  Jmol.getApplet('myApplet', data.payload);
                     $('body').append(Jmol.getAppletHtml(myApplet));
                     // Jmol.script('javascript alert')
@@ -36,11 +38,14 @@ var myApplet;
                     break;
                 case 'script':
                     const spt = '' + data.payload;
-                    console.log(spt)
                     Jmol.script(myApplet, spt);
                     break;
 
             }
+        }
+
+        function readyFunction () {
+            returnMessage({type: 'ready'})
         }
 
         function returnMessage (opt) {
