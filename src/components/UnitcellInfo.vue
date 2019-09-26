@@ -44,12 +44,9 @@ export default Vue.extend({
     }
   },
   filters: {
-    precision: function (value: number, precision: number) {
-      const intPart = Math.floor(value)
-      const decimals = value - intPart
-      if (decimals === 0) return `${value}.${'0'.repeat(precision)}`
-      const roundedDecimals = Math.round(decimals * 10 ** precision)
-      return `${intPart}.${roundedDecimals}`
+    precision: function (value: number, toPrecision: number) {
+      if (isNaN(value)) return ''
+      return value.toFixed(toPrecision)
     }
   }
 })
