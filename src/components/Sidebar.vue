@@ -23,13 +23,15 @@ export default Vue.extend({
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .sidebar {
-  background: #efebe9;
-  flex: 0 0 300px;
+  background: #263338;
+  flex: 0 0 310px;
   display: flex;
   flex-direction: column;
+  padding: 5px;
 }
 h1 {
-  margin: 0.5rem;
+  margin: 0.1rem 0.2rem;
   text-align: left;
+  color: white;
 }
 </style>
