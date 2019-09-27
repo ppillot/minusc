@@ -166,7 +166,7 @@ export default Vue.extend({
 input {
   width: 2em;
   border: none;
-  text-align: right;
+  text-align: center;
   font-size: 1em;
 }
 table {

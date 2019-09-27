@@ -72,11 +72,12 @@ ul.tabs {
         border-style: solid;
         margin: 0 0 -1px 0.4rem;
         border-radius: 3px 3px 0 0;
-        background: #ECEFF1;
+        background: #ddd;
         cursor: pointer;
         &.active {
           border-bottom-color: white;
           background: white;
+          color: dodgerblue;
         }
     }
 }
