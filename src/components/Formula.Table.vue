@@ -6,19 +6,24 @@
     <table>
         <thead>
             <tr>
-                <th>Entités</th>
-                <th>Intérieur</th>
-                <th>Faces</th>
-                <th>Arêtes</th>
-                <th>Sommets</th>
-                <th>Total</th>
-                <th>Masse</th>
-                <th>% (masse)</th>
+                <th></th>
+                <th class="part">Intérieur</th>
+                <th class="part">Faces</th>
+                <th class="part">Arêtes</th>
+                <th class="part">Sommets</th>
+                <th class="result">Total</th>
+                <th class="result">Masse</th>
+                <th class="result">% (masse)</th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="(atom, index) in atoms" :key="index">
-                <td>{{ atom.symbol }}</td>
+            <tr v-for="(atom, index) in listAtoms" :key="index">
+                <td class="symbol"
+                  :style="{ color: atom.color }">
+                  <span class="symbol">
+                    {{ atom.symbol }}<sup v-if="atom.charge !== ''">{{ atom.charge }}</sup>
+                  </span>
+                </td>
                 <td><input
                   v-model="table[index].interior"
                   @focus="restrictView({part: 'interior', element: atom.symbol})" /></td>
@@ -87,6 +92,15 @@ export default Vue.extend({
     atoms: function () {
       return this.$store.state.atoms as AtomProps[]
     },
+    listAtoms: function () {
+      return this.atoms.map((atom: AtomProps) => {
+        return {
+          symbol: atom.symbol,
+          charge: (atom.charge === 0) ? '' : (Math.abs(atom.charge) === 1 ? '' : Math.abs(atom.charge)) + ((atom.charge < 0) ? '-' : '+'),
+          color: atom.color
+        }
+      })
+    },
     amount: function () {
       let overallMass = 0
       const amount: {mass: number, total: number}[] = this.table.map((row: UnitcellPart, i: number) => {
@@ -154,5 +168,40 @@ input {
   border: none;
   text-align: right;
   font-size: 1em;
+}
+table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-top: 2rem;
+}
+th.part {
+  font-size: 0.9rem;
+  transform: rotate(-30deg) translate(5px,6px);
+  max-width: 40px;
+}
+th.result {
+  font-weight: normal;
+  vertical-align: bottom;
+  font-size: 0.8rem;
+}
+td {
+  border: 1px solid #ddd;
+  text-align: center;
+  min-width: 30px;
+}
+td.symbol {
+  border: transparent;
+}
+span.symbol {
+  background: #0c1d24;
+  font-weight: bold;
+  border-radius: 2px;
+  display: inline-block;
+  font-size: 1rem;
+  width: 32px;
+  margin-right: 2px;
+}
+span.symbol sup {
+  font-size: 0.7rem
 }
 </style>
