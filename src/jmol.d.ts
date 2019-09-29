@@ -981,7 +981,7 @@ declare namespace jmol {
     type AtomPickCallback = (
         appletName: string,
         atomDescription: string,
-        atomIndex: [number],
+        atomIndex: number,
         dummy: null
     ) => void
     type BondPickCallback = (
