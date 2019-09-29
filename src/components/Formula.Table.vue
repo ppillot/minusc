@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="atoms[0].symbol!==''">
     <div class="instructions">
 
     </div>
