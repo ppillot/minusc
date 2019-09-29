@@ -41,12 +41,30 @@ type SubscribedCallBacks = {
     sync: boolean
 }
 
+const callBacks: (keyof SubscribedCallBacks)[] = ['animFrame',
+    'appletReady',
+    'atomMoved',
+    'echo',
+    'eval',
+    'hover',
+    'loadStruct',
+    'measure',
+    'message',
+    'minimization',
+    'pick',
+    'resize',
+    'script',
+    'structureModified',
+    'sync'];
+
+type JmolMessageType = 'promise'|'ready'|keyof SubscribedCallBacks
 class JmolWrapper {
     iFrame: HTMLIFrameElement
     doc : Document
     win : iFrameWindow
     pendingPromises: any[] = []
     readyCB: (a?: any)=>void = () => {}
+    cBMap: Partial<{[k in keyof SubscribedCallBacks]:((a?: any)=>void) }> = {}
     // param: Partial<jmol.AppletParameters>
     constructor (el: Element, param?: Partial<jmol.AppletParameters>) {
         this.iFrame = document.createElement('iframe')
@@ -61,10 +79,21 @@ class JmolWrapper {
 
         const cb: Partial<SubscribedCallBacks> = {}
 
-        if (param && param.readyFunction) {
-            this.readyCB = param.readyFunction
-            param.readyFunction = undefined
-            cb.ready = true
+        if (param) {
+            if (param.readyFunction) {
+                this.readyCB = param.readyFunction
+                param.readyFunction = undefined
+                cb.ready = true
+            }
+            callBacks.forEach(callBack => {
+                const cbName = callBack + 'Callback' as keyof jmol.AppletParameters;
+                if (param[cbName]) {
+                    cb[callBack] = true
+                    this.cBMap[callBack] = param[cbName] as (a?: any)=>void;
+                    //@ts-ignore too complex to represent ts limitation
+                    param[cbName] = undefined
+                }
+            })
         }
 
         const defaultParam: Partial<jmol.AppletParameters> = {
@@ -122,12 +151,16 @@ class JmolWrapper {
         })
     }
 
-    private receiveMessage (data: any) {
+
+    private receiveMessage (data: {type: JmolMessageType, payload: any}) {
         if (data.type === 'promise') {
             const resolve = this.pendingPromises.pop()
             resolve(data.payload)
         } else if (data.type === 'ready') {
             this.readyCB()
+        } else if (data.type in this.cBMap) {
+            //@ts-ignore
+            this.cBMap[data.type](...data.payload)
         }
     }
 
