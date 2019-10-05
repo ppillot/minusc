@@ -1,4 +1,6 @@
 module.exports = {
   lintOnSave: true,
-  assetsDir: '../public'
+  assetsDir: '../public',
+  publicPath: '/minusc/',
+  outputDir: '../dist'
 }
