@@ -27,13 +27,15 @@ export default Vue.extend({
   computed: {
     filteredFileList: function () {
       if (this.filter === '') {
+        // @ts-ignore
         return this.fileList
       }
+      // @ts-ignore
       return this.fileList.filter(({ name }) => {
         return name.toLowerCase().indexOf(this.filter.toLowerCase()) > -1
       })
     },
-    fileList: function () {
+    fileList: function (): {name: string, id: number}[] {
       const list: { name: string, id: number }[] = []
       Files.forEach((mFile, i) => {
         list.push({

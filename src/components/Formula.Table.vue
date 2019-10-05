@@ -93,6 +93,7 @@ export default Vue.extend({
       return this.$store.state.atoms as AtomProps[]
     },
     listAtoms: function () {
+      // @ts-ignore
       return this.atoms.map((atom: AtomProps) => {
         return {
           symbol: atom.symbol,
@@ -121,23 +122,27 @@ export default Vue.extend({
       }) as {total: number, mass: number, percent: number}[]
     },
     density: function () {
+      // @ts-ignore
       const m = this.amount.reduce((acc: number, row: {total: number, mass: number, percent: number}) => {
         return acc + row.mass
       }, 0)
       return m / (this.$store.state.unitcellProp.volume * avogadroNumber * 10E-25)
     },
     compacity: function () {
+      // @ts-ignore
       const v = this.amount.reduce((acc: number, row: {total: number, mass: number, percent: number}, i: number) => {
         return acc + row.total * 4 / 3 * Math.PI * Math.pow(this.atoms[i].ionicRadius, 3)
       }, 0)
       return v / this.$store.state.unitcellProp.volume * 100
     },
     hydration: function () {
+      // @ts-ignore
       const ixH = this.atoms.findIndex((atom: AtomProps) => {
         return atom.symbol === 'H'
       })
       if (ixH === -1) return 0
 
+      // @ts-ignore
       const nbH = this.amount[ixH].total
       return nbH * (molarMass['H'] + molarMass['O'])
     }
@@ -198,7 +203,7 @@ span.symbol {
   border-radius: 2px;
   display: inline-block;
   font-size: 1rem;
-  width: 32px;
+  width: 40px;
   margin-right: 2px;
 }
 span.symbol sup {

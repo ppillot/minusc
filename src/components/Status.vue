@@ -70,10 +70,11 @@ export default Vue.extend({
       }
     },
 
-    atoms: function () {
+    atoms: function (): AtomProps[] {
       return this.$store.state.atoms as AtomProps[]
     },
     listAtoms: function () {
+      // @ts-ignore
       return this.atoms.map((atom: AtomProps) => {
         return {
           symbol: atom.symbol,
