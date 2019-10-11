@@ -276,7 +276,7 @@ export default Vue.extend({
     formulaIsOn (cur: boolean) {
       if (this.$store.state.isLoading) return
       if (cur) {
-        jmolObj.script('display cell={1 1 1}; zoomto {displayed} 100;')
+        jmolObj.script('display cell={1 1 1}; zoomto {displayed} 200;')
       } else {
         jmolObj.script(this.unitcellScript)
       }
