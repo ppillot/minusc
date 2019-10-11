@@ -162,6 +162,8 @@ export default Vue.extend({
   methods: {
     restrictView (type: FormulaRestrictedView) {
       this.$store.commit(Mutations.RESTRICT_VIEW, type)
+      // reset counter after a change in focused cell
+      this.$store.commit(Mutations.CHANGE_COUNTER, 0)
     }
   }
 })

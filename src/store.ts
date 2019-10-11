@@ -60,7 +60,8 @@ export default new Vuex.Store({
       unitCharge: null,
       unitNb: null,
       color: 'rgb(255, 13, 13)'
-    }]
+    }],
+    counter: 0
   },
   mutations: {
     [Mutations.CHANGE_FILE]: function (state, file: MinUScFile) {
@@ -138,8 +139,11 @@ export default new Vuex.Store({
     },
     [Mutations.PLANE_VIEW]: function (state, mode: FormulaPlaneView) {
       state.formulaDisplayPlanes = (mode === state.formulaDisplayPlanes)
-        ? 'none'  // disable if already set
+        ? 'none' // disable if already set
         : mode
+    },
+    [Mutations.CHANGE_COUNTER]: function (state, count: number) {
+      state.counter = count
     }
   },
   actions: {

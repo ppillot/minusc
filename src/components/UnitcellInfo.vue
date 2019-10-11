@@ -8,6 +8,9 @@
         <li v-for="a in angles" :key="a[0]">
             {{ a[0] }} = {{ a[1] }}°
         </li>
+        <li v-if="formulaIsOn">
+          Compteur : {{ counter }}
+        </li>
     </ul>
   </div>
 </template>
@@ -20,7 +23,7 @@ import { UnitcellProp } from '../utils/types'
 export default Vue.extend({
   name: 'UnitcellInfo',
   computed: {
-    ...mapState(['name']),
+    ...mapState(['name', 'counter', 'formulaIsOn']),
     lengths () {
       const prop = this.$store.state.unitcellProp as UnitcellProp
       return [

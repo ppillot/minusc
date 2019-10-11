@@ -42,7 +42,8 @@ export default Vue.extend({
       'isLoading',
       'formulaIsOn',
       'formulaDisplay',
-      'formulaDisplayPlanes']),
+      'formulaDisplayPlanes',
+      'counter']),
     unitcellScript: function () {
       const u = this.$store.state.unitcell as {a: number, b: number, c: number}
       const cells = []
@@ -337,6 +338,40 @@ export default Vue.extend({
           break
       }
       jmolObj.script(spt)
+    },
+    counter (cur: number) {
+      if (cur === 0) {
+        const spt = `select all; halos off;`
+        jmolObj.script(spt)
+      }
+    }
+  },
+  methods: {
+    /*
+    in formula mode, picking an atom triggers a counter that is incremented after
+    each click on a new atom and decremented after each click on an atome that
+    is already selected
+    */
+    pick (applet: string, descr: string) {
+      if (!this.$store.state.formulaIsOn) return
+
+      const regAtomno = /#(\d+)/
+      const findAtomno = regAtomno.exec(descr)
+      if (findAtomno) {
+        const atomno = findAtomno[1]
+        const spt = `select @${atomno};
+          if ({selected}.halos=0);
+            halos on;
+            color halos gold;
+          else;
+            halos off;
+          endif;
+          select all;
+        `
+        jmolObj.script(spt)
+        const count = jmolObj.getValue('{halos!=0}.count')
+        this.$store.commit(Mutations.CHANGE_COUNTER, count)
+      }
     }
   },
   mounted () {
@@ -347,7 +382,8 @@ export default Vue.extend({
           Mutations.CHANGE_FILE,
           { name: 'Quartz', file: 'sio2.cif' } as MinUScFile
         )
-      }
+      },
+      pickCallback: this.pick
     })
   }
 })

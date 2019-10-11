@@ -17,7 +17,8 @@ export enum Mutations {
     SET_UNITCELL_PROP   = 'setUnitCellProp',
     RESTRICT_VIEW       = 'restrictView',
     SET_MODE            = 'setMode',
-    PLANE_VIEW          = 'planeView'
+    PLANE_VIEW          = 'planeView',
+    CHANGE_COUNTER      = 'changeCounter'
 
 }
 
