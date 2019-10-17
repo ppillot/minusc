@@ -67,6 +67,7 @@ interface Computation {
   mass: number,
   percent: number
 }
+type Amount = {total: number, mass: number, percent: number}
 
 function castInt (s: string) {
   const v = parseInt(s)
@@ -102,7 +103,7 @@ export default Vue.extend({
         }
       })
     },
-    amount: function () {
+    amount: function (): Amount[] {
       let overallMass = 0
       const amount: {mass: number, total: number}[] = this.table.map((row: UnitcellPart, i: number) => {
         const occupancy = this.atoms[i].occupancy
@@ -119,7 +120,7 @@ export default Vue.extend({
           ...row,
           percent: row.mass / overallMass * 100
         }
-      }) as {total: number, mass: number, percent: number}[]
+      }) as Amount[]
     },
     density: function () {
       // @ts-ignore
@@ -144,7 +145,10 @@ export default Vue.extend({
 
       // @ts-ignore
       const nbH = this.amount[ixH].total
-      return nbH * (molarMass['H'] + molarMass['O'])
+      const totalMass = (this.amount as Amount[]).reduce((sum, el) => {
+        return sum + el.mass
+      }, 0)
+      return nbH * (molarMass['H'] + molarMass['O']) / totalMass * 100
     }
   },
   watch: {
