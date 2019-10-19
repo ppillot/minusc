@@ -93,6 +93,9 @@ export default Vue.extend({
     background: #0c1c24;
     flex: 0 0 80px;
     color: white;
+    margin: 0 2px 6px 6px;
+    padding: 4px 8px;
+    border-radius: 4px;
 }
 .title {
   font-size: 1.6rem;
