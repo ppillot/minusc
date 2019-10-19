@@ -18,8 +18,8 @@ export enum Mutations {
     RESTRICT_VIEW       = 'restrictView',
     SET_MODE            = 'setMode',
     PLANE_VIEW          = 'planeView',
-    CHANGE_COUNTER      = 'changeCounter'
-
+    CHANGE_COUNTER      = 'changeCounter',
+    SET_ATOM_SETS_COUNTS= 'setAtomSetsCounts'
 }
 
 export default Mutations

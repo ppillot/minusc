@@ -10,7 +10,8 @@ import { AtomDisplay,
   UnitcellProp,
   FormulaRestrictedView,
   MinuscMode,
-  FormulaPlaneView
+  FormulaPlaneView,
+  TAtomCountSet
 } from './utils/types'
 import { MinUScFile } from './utils/files'
 
@@ -61,6 +62,7 @@ export default new Vuex.Store({
       unitNb: null,
       color: 'rgb(255, 13, 13)'
     }],
+    atomsSetsCounts: [{ I: 0, F: 0, E: 0, V: 0 }],
     counter: 0
   },
   mutations: {
@@ -144,6 +146,9 @@ export default new Vuex.Store({
     },
     [Mutations.CHANGE_COUNTER]: function (state, count: number) {
       state.counter = count
+    },
+    [Mutations.SET_ATOM_SETS_COUNTS]: function (state, aCounts: TAtomCountSet[]) {
+      state.atomsSetsCounts = aCounts
     }
   },
   actions: {

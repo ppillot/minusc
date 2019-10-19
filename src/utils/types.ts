@@ -38,3 +38,10 @@ export type AtomicSymbol = 'H'|'He'|'Li'|'Be'|'B'|'C'|'N'|'O'|'F'|'Ne'|'Na'|
   'Ra'|'Rf'|'Db'|'Sg'|'Bh'|'Hs'|'Mt'|'Ds'|'Rg'|'La'|'Ce'|'Pr'|'Nd'|'Pm'|'Sm'|
   'Eu'|'Gd'|'Tb'|'Dy'|'Ho'|'Er'|'Tm'|'Yb'|'Lu'|'Ac'|'Th'|'Pa'|'U'|'Np'|'Pu'|
   'Am'|'Cm'|'Bk'|'Cf'|'Es'|'Fm'|'Md'|'No'|'Lr'
+
+  export type TAtomCountSet = {
+    I: number,
+    F: number,
+    E: number,
+    V: number
+  }

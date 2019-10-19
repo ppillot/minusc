@@ -145,6 +145,7 @@ export default Vue.extend({
 
       // @ts-ignore
       const nbH = this.amount[ixH].total
+      // @ts-ignore
       const totalMass = (this.amount as Amount[]).reduce((sum, el) => {
         return sum + el.mass
       }, 0)

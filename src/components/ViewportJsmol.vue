@@ -13,7 +13,8 @@ import {
   PolyhedraDisplay,
   UnitcellProp,
   FormulaRestrictedView,
-  FormulaPlaneView } from '../utils/types'
+  FormulaPlaneView,
+  TAtomCountSet } from '../utils/types'
 import Mutations from '../mutations'
 import { MinUScFile } from '../utils/files'
 
@@ -175,7 +176,23 @@ export default Vue.extend({
           this.$store.commit(Mutations.SET_UNITCELL_PROP, unitcell)
 
           // set the predefined sets
-          jmolObj.script(this.defineSetsScript)
+          jmolObj.scriptAsync(this.defineSetsScript)
+            .then(() => {
+              // counting atoms in each set must be chained after the sets have
+              // been created.
+              const jsonPieces = atoms.map(atom => {
+                return `{"I":' + {_${atom.symbol} and interior}.count + ',"F":' + {_${atom.symbol} and face}.count + ',"E":' + {_${atom.symbol} and edge}.count + ',"V":' + {_${atom.symbol} and vertex}.count + '}`
+              })
+              const getTotalsSpt = `'[` +
+                jsonPieces.join(`,`) +
+                `]'`
+              const totalsJSON = jmolObj.getValue(getTotalsSpt)
+              const atomCountsPerSet: TAtomCountSet[] = JSON.parse(totalsJSON)
+              this.$store.commit(
+                Mutations.SET_ATOM_SETS_COUNTS,
+                atomCountsPerSet
+              )
+            })
         })
     },
     atomDisplay (curr: AtomDisplay) {
