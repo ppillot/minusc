@@ -11,7 +11,7 @@
                 <th class="part">Faces</th>
                 <th class="part">Arêtes</th>
                 <th class="part">Sommets</th>
-                <th class="result">Total</th>
+                <th class="result" @dblclick="autoFill">Total</th>
                 <th class="result">Masse</th>
                 <th class="result">% (masse)</th>
             </tr>
@@ -37,14 +37,14 @@
                   v-model="table[index].vertex"
                   @focus="restrictView({part: 'vertex', element: atom.symbol})" /></td>
                 <td>{{ amount[index].total }}</td>
-                <td>{{ amount[index].mass }}</td>
+                <td>{{ amount[index].mass | precision(1) }}</td>
                 <td>{{ amount[index].percent | precision(1) }}</td>
             </tr>
         </tbody>
     </table>
     <div class="statistics">
       Masse volumique calculée : {{ density | precision(3) }} g/cm<sup>3</sup> <br />
-      Compacité calculée : {{ compacity | precision(1) }} % (volume)
+      Compacité calculée : {{ compacity | precision(1) }} % (volume) <br />
       Pourcentage d'hydratation : {{ hydration | precision(2) }} % (masse)
     </div>
   </div>
@@ -53,7 +53,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import Mutations from '../mutations'
-import { AtomProps, FormulaRestrictedView } from '../utils/types'
+import { AtomProps, FormulaRestrictedView, TAtomCountSet } from '../utils/types'
 import { molarMass } from '../utils/atoms'
 
 interface UnitcellPart {
@@ -169,6 +169,16 @@ export default Vue.extend({
       this.$store.commit(Mutations.RESTRICT_VIEW, type)
       // reset counter after a change in focused cell
       this.$store.commit(Mutations.CHANGE_COUNTER, 0)
+    },
+    autoFill () {
+      this.table = this.$store.state.atomsSetsCounts.map((setsCounts: TAtomCountSet, i: number) => {
+        return {
+          interior: setsCounts.I.toString(),
+          face: setsCounts.F.toString(),
+          edge: setsCounts.E.toString(),
+          vertex: setsCounts.V.toString()
+        }
+      })
     }
   }
 })
@@ -185,6 +195,9 @@ table {
   border-collapse: collapse;
   table-layout: fixed;
   margin-top: 2rem;
+}
+th {
+  user-select: none;
 }
 th.part {
   font-size: 0.9rem;
