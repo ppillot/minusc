@@ -26,15 +26,19 @@
                 </td>
                 <td><input
                   v-model="table[index].interior"
+                  :class="{invalid: isInvalid[index]['interior']}"
                   @focus="restrictView({part: 'interior', element: atom.symbol})" /></td>
                 <td><input
                   v-model="table[index].face"
+                  :class="{invalid: isInvalid[index]['face']}"
                   @focus="restrictView({part: 'face', element: atom.symbol})" /></td>
                 <td><input
                   v-model="table[index].edge"
+                  :class="{invalid: isInvalid[index]['edge']}"
                   @focus="restrictView({part: 'edge', element: atom.symbol})" /></td>
                 <td><input
                   v-model="table[index].vertex"
+                  :class="{invalid: isInvalid[index]['vertex']}"
                   @focus="restrictView({part: 'vertex', element: atom.symbol})" /></td>
                 <td>{{ amount[index].total }}</td>
                 <td>{{ amount[index].mass | precision(1) }}</td>
@@ -76,6 +80,13 @@ function castInt (s: string) {
 
 const avogadroNumber = 6.02214076E23
 
+const partMap = {
+  interior: 'I',
+  vertex: 'V',
+  edge: 'E',
+  face: 'F'
+}
+
 export default Vue.extend({
   name: 'FormulaTable',
   filters: {
@@ -92,6 +103,28 @@ export default Vue.extend({
   computed: {
     atoms: function () {
       return this.$store.state.atoms as AtomProps[]
+    },
+    counts: function () {
+      return this.$store.state.atomsSetsCounts as TAtomCountSet[]
+    },
+    isInvalid: function () {
+      return this.$store.state.atomsSetsCounts.map((aCount: TAtomCountSet, i: number) => {
+        if (this.table[i] === undefined) {
+          return {
+            interior: false,
+            face: false,
+            vertex: false,
+            edge: false
+          }
+        }
+
+        return {
+          interior: this.table[i].interior === '' ? false : this.table[i].interior !== aCount.I.toString(),
+          face: this.table[i].face === '' ? false : this.table[i].face !== aCount.F.toString(),
+          edge: this.table[i].edge === '' ? false : this.table[i].edge !== aCount.E.toString(),
+          vertex: this.table[i].vertex === '' ? false : this.table[i].vertex !== aCount.V.toString()
+        }
+      })
     },
     listAtoms: function () {
       // @ts-ignore
@@ -189,7 +222,11 @@ input {
   width: 2em;
   border: none;
   text-align: center;
-  font-size: 1em;
+  font-size: 0.9em;
+  background: none;
+}
+input.invalid {
+  color: #D84315;
 }
 table {
   border-collapse: collapse;
