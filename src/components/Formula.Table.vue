@@ -108,6 +108,21 @@ export default Vue.extend({
       return this.$store.state.atomsSetsCounts as TAtomCountSet[]
     },
     isInvalid: function () {
+      // there might be a transient state, after atoms has been set and before
+      // atomsSetsCounts is, when there is a discrepancy between both tables
+      // length. In that case, the following code sets everything to false
+      if (this.table.length !== this.$store.state.atomsSetsCounts.length) {
+        // @ts-ignore
+        return this.table.map(() => {
+          return {
+            interior: false,
+            face: false,
+            vertex: false,
+            edge: false
+          }
+        })
+      }
+
       return this.$store.state.atomsSetsCounts.map((aCount: TAtomCountSet, i: number) => {
         if (this.table[i] === undefined) {
           return {
