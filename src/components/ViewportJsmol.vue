@@ -120,7 +120,8 @@ export default Vue.extend({
       set selectionHalos off;
       set axes 3;
       zoom 200;
-      set zshade on; set zshadepower 2;`)
+      set zshade on; set zshadepower 2;
+      set measurementUnits pm;`)
         .then(() => {
           let elements = jmolObj.getValue('{unitcell}.element') as string[]
           let elementSet = new Set(elements)
