@@ -70,14 +70,15 @@ ul.tabs {
         border-width: 0 0 1px 0;
         border-color: #ced8dc;
         border-style: solid;
-        margin: 0 0 -1px 0.4rem;
-        border-radius: 3px 3px 0 0;
-        background: #ddd;
+        margin: 0 0.4rem -1px 0;
+        border-radius: 2px 2px 0 0;
+        background: #eaeff1;
         cursor: pointer;
         &.active {
           border-bottom-color: white;
           background: white;
           color: dodgerblue;
+          opacity: 0.99; // this overlays this div over the tab shadow
         }
     }
 }
@@ -86,6 +87,7 @@ ul.tabs {
     background: white;
     padding: 0.4rem;
     border-radius: 2px 2px 0 0;
+    box-shadow: -2px 0 3px #999;
     &> div {
       display: none;
       &.active {
