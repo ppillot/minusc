@@ -29,13 +29,4 @@ export default Vue.extend({
     display: flex;
     flex-direction: column;
 }
-.info {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 140px;
-    background: rgba(85, 99, 105, 0.4);
-    color: white;
-    padding: 0.5em;
-}
 </style>
