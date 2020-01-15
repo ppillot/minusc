@@ -204,7 +204,8 @@ const files: MinUScFile[] = [
     'script': 'connect (*) delete; connect 1.0 2.0 (silicon,magnesium) (oxygen)'
   },
   { name: 'Pyrite',
-    'file': 'pyrite.cif'
+    'file': 'pyrite.cif',
+    script: '{_S}.ionic = 1.53;'
   },
   { name: 'Ringwoodite',
     'file': 'ringwoodite-9003069.cif',
@@ -231,7 +232,7 @@ const files: MinUScFile[] = [
     'file': 'staurolite-9005341.cif',
     'script': 'connect (*) delete; connect 1.0 3.0 (silicon, aluminum) (oxygen)'
   },
-   { name: 'Sulfate de cuivre',
+  { name: 'Sulfate de cuivre',
     file: 'cuso4-2310620.cif',
     script: 'connect (*) delete; connect 1.0 3.0 (_S, _Cu) (oxygen)',
     aliases: ['CuSO4', 'Chalcocyanite']
@@ -261,12 +262,10 @@ const mineralNames = (function (tF) {
   const t: string[] = []
   for (const name in tF) {
     if (tF.hasOwnProperty(name)) {
-      t.push(name);
+      t.push(name)
     }
   }
-  return t;
+  return t
 }(files))
-
-const classification_fichiers = {}
 
 export default files
